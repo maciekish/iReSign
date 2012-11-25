@@ -1,0 +1,300 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C115EE2B13815024003B9ACC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C115EE2A13815024003B9ACC /* Cocoa.framework */; };
+		C115EE3513815024003B9ACC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = C115EE3313815024003B9ACC /* InfoPlist.strings */; };
+		C115EE3813815024003B9ACC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C115EE3713815024003B9ACC /* main.m */; };
+		C115EE3B13815024003B9ACC /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = C115EE3913815024003B9ACC /* Credits.rtf */; };
+		C115EE3E13815024003B9ACC /* iReSignAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C115EE3D13815024003B9ACC /* iReSignAppDelegate.m */; };
+		C115EE4113815024003B9ACC /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = C115EE3F13815024003B9ACC /* MainMenu.xib */; };
+		C142471F138174E500F5B51F /* ResourceRules.plist in Resources */ = {isa = PBXBuildFile; fileRef = C142471E138174E500F5B51F /* ResourceRules.plist */; };
+		C14247301381B75B00F5B51F /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = C142472F1381B75B00F5B51F /* Icon.icns */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		C115EE2613815024003B9ACC /* iReSign.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iReSign.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C115EE2A13815024003B9ACC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		C115EE2D13815024003B9ACC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		C115EE2E13815024003B9ACC /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		C115EE2F13815024003B9ACC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		C115EE3213815024003B9ACC /* iReSign-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "iReSign-Info.plist"; sourceTree = "<group>"; };
+		C115EE3413815024003B9ACC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		C115EE3613815024003B9ACC /* iReSign-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "iReSign-Prefix.pch"; sourceTree = "<group>"; };
+		C115EE3713815024003B9ACC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		C115EE3A13815024003B9ACC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		C115EE3C13815024003B9ACC /* iReSignAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = iReSignAppDelegate.h; sourceTree = "<group>"; };
+		C115EE3D13815024003B9ACC /* iReSignAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = iReSignAppDelegate.m; sourceTree = "<group>"; };
+		C115EE4013815024003B9ACC /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		C142471E138174E500F5B51F /* ResourceRules.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = ResourceRules.plist; sourceTree = "<group>"; };
+		C142472F1381B75B00F5B51F /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = Icon.icns; path = ../Icon.icns; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C115EE2313815024003B9ACC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C115EE2B13815024003B9ACC /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C115EE1B13815023003B9ACC = {
+			isa = PBXGroup;
+			children = (
+				C115EE3013815024003B9ACC /* iReSign */,
+				C115EE2913815024003B9ACC /* Frameworks */,
+				C115EE2713815024003B9ACC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C115EE2713815024003B9ACC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C115EE2613815024003B9ACC /* iReSign.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C115EE2913815024003B9ACC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C115EE2A13815024003B9ACC /* Cocoa.framework */,
+				C115EE2C13815024003B9ACC /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C115EE2C13815024003B9ACC /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C115EE2D13815024003B9ACC /* AppKit.framework */,
+				C115EE2E13815024003B9ACC /* CoreData.framework */,
+				C115EE2F13815024003B9ACC /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		C115EE3013815024003B9ACC /* iReSign */ = {
+			isa = PBXGroup;
+			children = (
+				C115EE3C13815024003B9ACC /* iReSignAppDelegate.h */,
+				C115EE3D13815024003B9ACC /* iReSignAppDelegate.m */,
+				C115EE3F13815024003B9ACC /* MainMenu.xib */,
+				C115EE3113815024003B9ACC /* Supporting Files */,
+			);
+			path = iReSign;
+			sourceTree = "<group>";
+		};
+		C115EE3113815024003B9ACC /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				C142472F1381B75B00F5B51F /* Icon.icns */,
+				C142471E138174E500F5B51F /* ResourceRules.plist */,
+				C115EE3213815024003B9ACC /* iReSign-Info.plist */,
+				C115EE3313815024003B9ACC /* InfoPlist.strings */,
+				C115EE3613815024003B9ACC /* iReSign-Prefix.pch */,
+				C115EE3713815024003B9ACC /* main.m */,
+				C115EE3913815024003B9ACC /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C115EE2513815024003B9ACC /* iReSign */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C115EE4413815024003B9ACC /* Build configuration list for PBXNativeTarget "iReSign" */;
+			buildPhases = (
+				C115EE2213815024003B9ACC /* Sources */,
+				C115EE2313815024003B9ACC /* Frameworks */,
+				C115EE2413815024003B9ACC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = iReSign;
+			productName = iReSign;
+			productReference = C115EE2613815024003B9ACC /* iReSign.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C115EE1D13815023003B9ACC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0420;
+				ORGANIZATIONNAME = nil;
+			};
+			buildConfigurationList = C115EE2013815023003B9ACC /* Build configuration list for PBXProject "iReSign" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = C115EE1B13815023003B9ACC;
+			productRefGroup = C115EE2713815024003B9ACC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C115EE2513815024003B9ACC /* iReSign */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C115EE2413815024003B9ACC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C115EE3513815024003B9ACC /* InfoPlist.strings in Resources */,
+				C115EE3B13815024003B9ACC /* Credits.rtf in Resources */,
+				C115EE4113815024003B9ACC /* MainMenu.xib in Resources */,
+				C142471F138174E500F5B51F /* ResourceRules.plist in Resources */,
+				C14247301381B75B00F5B51F /* Icon.icns in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C115EE2213815024003B9ACC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C115EE3813815024003B9ACC /* main.m in Sources */,
+				C115EE3E13815024003B9ACC /* iReSignAppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		C115EE3313815024003B9ACC /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C115EE3413815024003B9ACC /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		C115EE3913815024003B9ACC /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C115EE3A13815024003B9ACC /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		C115EE3F13815024003B9ACC /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C115EE4013815024003B9ACC /* en */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		C115EE4213815024003B9ACC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		C115EE4313815024003B9ACC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		C115EE4513815024003B9ACC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "iReSign/iReSign-Prefix.pch";
+				INFOPLIST_FILE = "iReSign/iReSign-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		C115EE4613815024003B9ACC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "iReSign/iReSign-Prefix.pch";
+				INFOPLIST_FILE = "iReSign/iReSign-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C115EE2013815023003B9ACC /* Build configuration list for PBXProject "iReSign" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C115EE4213815024003B9ACC /* Debug */,
+				C115EE4313815024003B9ACC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C115EE4413815024003B9ACC /* Build configuration list for PBXNativeTarget "iReSign" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C115EE4513815024003B9ACC /* Debug */,
+				C115EE4613815024003B9ACC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C115EE1D13815023003B9ACC /* Project object */;
+}
