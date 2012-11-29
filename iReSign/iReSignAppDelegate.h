@@ -48,6 +48,7 @@
 - (IBAction)browse:(id)sender;
 - (IBAction)provisioningBrowse:(id)sender;
 - (IBAction)showHelp:(id)sender;
+- (IBAction)changeBundleIDPressed:(id)sender;
 
 - (void)checkUnzip:(NSTimer *)timer;
 - (void)doProvisioning;

@@ -411,27 +411,27 @@
 							<int key="NSpiFlags">20746</int>
 							<double key="NSMaxValue">100</double>
 						</object>
-						<object class="NSTextField" id="771357971">
+						<object class="NSTextField" id="259983423">
 							<reference key="NSNextResponder" ref="439893737"/>
 							<int key="NSvFlags">266</int>
 							<string key="NSFrame">{{20, 103}, {208, 22}}</string>
 							<reference key="NSSuperview" ref="439893737"/>
 							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
-							<object class="NSTextFieldCell" key="NSCell" id="460972827">
+							<object class="NSTextFieldCell" key="NSCell" id="505362794">
 								<int key="NSCellFlags">-1267728319</int>
 								<int key="NSCellFlags2">272630784</int>
 								<string key="NSContents"/>
 								<reference key="NSSupport" ref="466801085"/>
 								<string key="NSPlaceholderString">com.companyname.appname</string>
-								<reference key="NSControlView" ref="771357971"/>
+								<reference key="NSControlView" ref="259983423"/>
 								<bool key="NSDrawsBackground">YES</bool>
 								<reference key="NSBackgroundColor" ref="545429797"/>
 								<reference key="NSTextColor" ref="85478138"/>
 							</object>
 							<bool key="NSAllowsLogicalLayoutDirection">NO</bool>
 						</object>
-						<object class="NSButton" id="941003289">
+						<object class="NSButton" id="947436909">
 							<reference key="NSNextResponder" ref="439893737"/>
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{234, 105}, {88, 18}}</string>
@@ -439,13 +439,13 @@
 							<reference key="NSWindow"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<bool key="NSEnabled">YES</bool>
-							<object class="NSButtonCell" key="NSCell" id="1029422257">
+							<object class="NSButtonCell" key="NSCell" id="509053988">
 								<int key="NSCellFlags">67108864</int>
 								<int key="NSCellFlags2">268435456</int>
 								<string key="NSContents">Change ID</string>
 								<reference key="NSSupport" ref="466801085"/>
 								<string key="NSCellIdentifier">_NS:9</string>
-								<reference key="NSControlView" ref="941003289"/>
+								<reference key="NSControlView" ref="947436909"/>
 								<int key="NSButtonFlags">1211912448</int>
 								<int key="NSButtonFlags2">2</int>
 								<object class="NSCustomResource" key="NSNormalImage">
@@ -637,7 +637,7 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">bundleIDField</string>
 						<reference key="source" ref="976324537"/>
-						<reference key="destination" ref="771357971"/>
+						<reference key="destination" ref="259983423"/>
 					</object>
 					<int key="connectionID">576</int>
 				</object>
@@ -645,9 +645,17 @@
 					<object class="IBOutletConnection" key="connection">
 						<string key="label">changeBundleIDCheckbox</string>
 						<reference key="source" ref="976324537"/>
-						<reference key="destination" ref="941003289"/>
+						<reference key="destination" ref="947436909"/>
 					</object>
 					<int key="connectionID">577</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">changeBundleIDPressed:</string>
+						<reference key="source" ref="976324537"/>
+						<reference key="destination" ref="947436909"/>
+					</object>
+					<int key="connectionID">578</int>
 				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -825,8 +833,8 @@
 							<reference ref="599196862"/>
 							<reference ref="1004935034"/>
 							<reference ref="769719733"/>
-							<reference ref="771357971"/>
-							<reference ref="941003289"/>
+							<reference ref="259983423"/>
+							<reference ref="947436909"/>
 						</array>
 						<reference key="parent" ref="972006081"/>
 					</object>
@@ -928,29 +936,29 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">572</int>
-						<reference key="object" ref="771357971"/>
+						<reference key="object" ref="259983423"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="460972827"/>
+							<reference ref="505362794"/>
 						</array>
 						<reference key="parent" ref="439893737"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">573</int>
-						<reference key="object" ref="460972827"/>
-						<reference key="parent" ref="771357971"/>
+						<reference key="object" ref="505362794"/>
+						<reference key="parent" ref="259983423"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">574</int>
-						<reference key="object" ref="941003289"/>
+						<reference key="object" ref="947436909"/>
 						<array class="NSMutableArray" key="children">
-							<reference ref="1029422257"/>
+							<reference ref="509053988"/>
 						</array>
 						<reference key="parent" ref="439893737"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">575</int>
-						<reference key="object" ref="1029422257"/>
-						<reference key="parent" ref="941003289"/>
+						<reference key="object" ref="509053988"/>
+						<reference key="parent" ref="947436909"/>
 					</object>
 				</array>
 			</object>
@@ -1008,7 +1016,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">577</int>
+			<int key="maxID">578</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -1017,6 +1025,7 @@
 					<string key="superclassName">NSObject</string>
 					<dictionary class="NSMutableDictionary" key="actions">
 						<string key="browse:">id</string>
+						<string key="changeBundleIDPressed:">id</string>
 						<string key="provisioningBrowse:">id</string>
 						<string key="resign:">id</string>
 						<string key="showHelp:">id</string>
@@ -1024,6 +1033,10 @@
 					<dictionary class="NSMutableDictionary" key="actionInfosByName">
 						<object class="IBActionInfo" key="browse:">
 							<string key="name">browse:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+						<object class="IBActionInfo" key="changeBundleIDPressed:">
+							<string key="name">changeBundleIDPressed:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="provisioningBrowse:">

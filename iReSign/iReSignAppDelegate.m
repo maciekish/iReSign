@@ -13,7 +13,7 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    [self resizeWindow:175];
+    [self resizeWindow:225];
     [flurry setAlphaValue:0.5];
     
     defaults = [NSUserDefaults standardUserDefaults];
@@ -409,6 +409,15 @@
     NSRunAlertPanel(@"How to use iReSign", 
                     @"iReSign allows you to re-sign any unencrypted ipa-file with any certificate for which you hold the corresponding private key.\n\n1. Drag your unsigned .ipa file to the top box, or use the browse button.\n\n2. Enter your full certificate name from Keychain Access, for example \"iPhone Developer: Firstname Lastname (XXXXXXXXXX)\" in the bottom box.\n\n3. Click ReSign! and wait. The resigned file will be saved in the same folder as the original file.",
                     @"OK",nil, nil);
+}
+
+- (IBAction)changeBundleIDPressed:(id)sender {
+    
+    if (sender != changeBundleIDCheckbox) {
+        return;
+    }
+    
+    bundleIDField.enabled = changeBundleIDCheckbox.state == NSOnState;
 }
 
 - (void)disableControls {
