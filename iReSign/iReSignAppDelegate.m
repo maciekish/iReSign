@@ -13,7 +13,7 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    [self resizeWindow:145];
+    [self resizeWindow:175];
     [flurry setAlphaValue:0.5];
     
     defaults = [NSUserDefaults standardUserDefaults];
