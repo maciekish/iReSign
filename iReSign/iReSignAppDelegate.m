@@ -22,7 +22,7 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    [self resizeWindow:225];
+    [self resizeWindow:184];
     [flurry setAlphaValue:0.5];
     
     defaults = [NSUserDefaults standardUserDefaults];
@@ -70,6 +70,7 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
         [self disableControls];
         
         NSLog(@"Setting up working directory in %@",workingPath);
+        [statusLabel setHidden:NO];
         [statusLabel setStringValue:@"Setting up working directory"];
         
         [[NSFileManager defaultManager] removeItemAtPath:workingPath error:nil];
@@ -504,7 +505,7 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
     [flurry startAnimation:self];
     [flurry setAlphaValue:1.0];
     
-    [self resizeWindow:185];
+    [self resizeWindow:210];
 }
 
 - (void)enableControls {
