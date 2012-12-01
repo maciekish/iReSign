@@ -518,7 +518,7 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
     [browseButton setEnabled:TRUE];
     [resignButton setEnabled:TRUE];
     [provisioningBrowseButton setEnabled:YES];
-    [provisioningPathField setEnabled:NO];
+    [provisioningPathField setEnabled:YES];
     [changeBundleIDCheckbox setEnabled:YES];
     [bundleIDField setEnabled:changeBundleIDCheckbox.state == NSOnState];
     
