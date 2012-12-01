@@ -7,6 +7,12 @@
 
 #import "iReSignAppDelegate.h"
 
+static NSString *kKeyBundleIDChange       = @"keyBundleIDChange";
+static NSString *kKeyBundleIDPlist        = @"CFBundleIdentifier";
+
+static NSString *kPayloadDirName          = @"Payload";
+static NSString *kInfoPlistFilename       = @"Info.plist";
+
 @implementation iReSignAppDelegate
 
 @synthesize window,workingPath;
@@ -43,10 +49,12 @@
     }
 }
 
+
 - (IBAction)resign:(id)sender {
     //Save cert name
     [defaults setValue:[certField stringValue] forKey:@"CERT_NAME"];
     [defaults setValue:[provisioningPathField stringValue] forKey:@"MOBILEPROVISION_PATH"];
+    [defaults setValue:[bundleIDField stringValue] forKey:kKeyBundleIDChange];
     [defaults synchronize];
     
     codesigningResult = nil;
@@ -95,6 +103,11 @@
         if ([[NSFileManager defaultManager] fileExistsAtPath:[workingPath stringByAppendingPathComponent:@"Payload"]]) {
             NSLog(@"Unzipping done");
             [statusLabel setStringValue:@"Original app extracted"];
+            
+            if (changeBundleIDCheckbox.state == NSOnState) {
+                [self doBundleIDChange:@"newbundleid"];
+            }
+            
             if ([[provisioningPathField stringValue] isEqualTo:@""]) {
                 [self doCodeSigning];
             } else {
@@ -108,6 +121,36 @@
             [statusLabel setStringValue:@"Ready"];
         }
     }
+}
+
+- (BOOL)doBundleIDChange:(NSString *)newBundleID {
+    
+    NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[workingPath stringByAppendingPathComponent:kPayloadDirName] error:nil];
+    NSString *infoPlistPath = nil;
+    
+    for (NSString *file in dirContents) {
+        if ([[[file pathExtension] lowercaseString] isEqualToString:@"app"]) {
+            infoPlistPath = [[[workingPath stringByAppendingPathComponent:kPayloadDirName]
+                              stringByAppendingPathComponent:file]
+                             stringByAppendingPathComponent:kInfoPlistFilename];
+
+        }
+    }
+    
+    NSMutableDictionary *plist = nil;
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath]) {
+        plist = [[NSMutableDictionary alloc] initWithContentsOfFile:infoPlistPath];
+        [plist setObject:newBundleID forKey:kKeyBundleIDPlist];
+        
+        NSData *xmlData = [NSPropertyListSerialization dataFromPropertyList:plist format:NSPropertyListBinaryFormat_v1_0 errorDescription:NULL];
+        [xmlData writeToFile:@"/Users/esteban/Desktop/test.plist" atomically:YES];
+        
+        return YES;
+    }
+    
+    
+    return NO;
 }
 
 - (void)doProvisioning {
