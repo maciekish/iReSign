@@ -105,7 +105,7 @@ static NSString *kInfoPlistFilename       = @"Info.plist";
             [statusLabel setStringValue:@"Original app extracted"];
             
             if (changeBundleIDCheckbox.state == NSOnState) {
-                [self doBundleIDChange:@"newbundleid"];
+                [self doBundleIDChange:bundleIDField.stringValue];
             }
             
             if ([[provisioningPathField stringValue] isEqualTo:@""]) {
@@ -133,18 +133,18 @@ static NSString *kInfoPlistFilename       = @"Info.plist";
             infoPlistPath = [[[workingPath stringByAppendingPathComponent:kPayloadDirName]
                               stringByAppendingPathComponent:file]
                              stringByAppendingPathComponent:kInfoPlistFilename];
-
+            
         }
     }
     
     NSMutableDictionary *plist = nil;
     
     if ([[NSFileManager defaultManager] fileExistsAtPath:infoPlistPath]) {
-        plist = [[NSMutableDictionary alloc] initWithContentsOfFile:infoPlistPath];
+        plist = [[[NSMutableDictionary alloc] initWithContentsOfFile:infoPlistPath] autorelease];
         [plist setObject:newBundleID forKey:kKeyBundleIDPlist];
         
-        NSData *xmlData = [NSPropertyListSerialization dataFromPropertyList:plist format:NSPropertyListBinaryFormat_v1_0 errorDescription:NULL];
-        [xmlData writeToFile:@"/Users/esteban/Desktop/test.plist" atomically:YES];
+        NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:plist format:NSPropertyListBinaryFormat_v1_0 options:kCFPropertyListImmutable error:nil];
+        [xmlData writeToFile:infoPlistPath atomically:YES];
         
         return YES;
     }
