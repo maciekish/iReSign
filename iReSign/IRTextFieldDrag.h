@@ -2,8 +2,7 @@
 //  IRTextFieldDrag.h
 //  iReSign
 //
-//  Created by Esteban on 01/12/12.
-//  Copyright (c) 2012 nil. All rights reserved.
+//  Created by Esteban Bouza on 01/12/12.
 //
 
 #import <Cocoa/Cocoa.h>
