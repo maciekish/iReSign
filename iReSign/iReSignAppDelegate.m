@@ -501,6 +501,10 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
     [certField setEnabled:FALSE];
     [browseButton setEnabled:FALSE];
     [resignButton setEnabled:FALSE];
+    [provisioningBrowseButton setEnabled:NO];
+    [provisioningPathField setEnabled:NO];
+    [changeBundleIDCheckbox setEnabled:NO];
+    [bundleIDField setEnabled:NO];
     
     [flurry startAnimation:self];
     [flurry setAlphaValue:1.0];
@@ -513,6 +517,10 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
     [certField setEnabled:TRUE];
     [browseButton setEnabled:TRUE];
     [resignButton setEnabled:TRUE];
+    [provisioningBrowseButton setEnabled:YES];
+    [provisioningPathField setEnabled:NO];
+    [changeBundleIDCheckbox setEnabled:YES];
+    [bundleIDField setEnabled:changeBundleIDCheckbox.state == NSOnState];
     
     [flurry stopAnimation:self];
     [flurry setAlphaValue:0.5];
