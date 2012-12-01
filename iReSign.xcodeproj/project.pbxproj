@@ -90,9 +90,9 @@
 				C115EE3C13815024003B9ACC /* iReSignAppDelegate.h */,
 				C115EE3D13815024003B9ACC /* iReSignAppDelegate.m */,
 				C115EE3F13815024003B9ACC /* MainMenu.xib */,
-				C115EE3113815024003B9ACC /* Supporting Files */,
 				5B9E4C4A166AB3F7006D9F8F /* IRTextFieldDrag.h */,
 				5B9E4C4B166AB3F7006D9F8F /* IRTextFieldDrag.m */,
+				C115EE3113815024003B9ACC /* Supporting Files */,
 			);
 			path = iReSign;
 			sourceTree = "<group>";
