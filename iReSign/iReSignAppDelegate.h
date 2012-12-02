@@ -6,6 +6,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "IRTextFieldDrag.h"
 
 @interface iReSignAppDelegate : NSObject <NSApplicationDelegate> {
 @private
@@ -27,14 +28,17 @@
     NSString *codesigningResult;
     NSString *verificationResult;
     
-    IBOutlet NSTextField *pathField;
-    IBOutlet NSTextField *provisioningPathField;
-    IBOutlet NSTextField *certField;
+    IBOutlet IRTextFieldDrag *pathField;
+    IBOutlet IRTextFieldDrag *provisioningPathField;
+    IBOutlet IRTextFieldDrag *certField;
+    IBOutlet IRTextFieldDrag *bundleIDField;
     IBOutlet NSButton    *browseButton;
     IBOutlet NSButton    *provisioningBrowseButton;
     IBOutlet NSButton    *resignButton;
     IBOutlet NSTextField *statusLabel;
     IBOutlet NSProgressIndicator *flurry;
+    IBOutlet NSButton *changeBundleIDCheckbox;
+    
 }
 
 @property (assign) IBOutlet NSWindow *window;
@@ -45,6 +49,7 @@
 - (IBAction)browse:(id)sender;
 - (IBAction)provisioningBrowse:(id)sender;
 - (IBAction)showHelp:(id)sender;
+- (IBAction)changeBundleIDPressed:(id)sender;
 
 - (void)checkUnzip:(NSTimer *)timer;
 - (void)doProvisioning;
