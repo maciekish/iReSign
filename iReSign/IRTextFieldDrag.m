@@ -22,7 +22,7 @@
         if (files.count <= 0) {
             return NO;
         }
-        self.stringValue = files[0];
+        self.stringValue = [files objectAtIndex:0];
 
     }
     return YES;
