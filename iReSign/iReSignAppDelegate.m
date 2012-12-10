@@ -7,13 +7,22 @@
 
 #import "iReSignAppDelegate.h"
 
+static NSString *kKeyPrefsBundleIDChange        = @"keyBundleIDChange";
+
+static NSString *kKeyBundleIDPlistApp           = @"CFBundleIdentifier";
+static NSString *kKeyBundleIDPlistiTunesArtwork = @"softwareVersionBundleId";
+
+static NSString *kPayloadDirName                = @"Payload";
+static NSString *kInfoPlistFilename             = @"Info.plist";
+static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
+
 @implementation iReSignAppDelegate
 
 @synthesize window,workingPath;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    [self resizeWindow:145];
+    [self resizeWindow:184];
     [flurry setAlphaValue:0.5];
     
     defaults = [NSUserDefaults standardUserDefaults];
@@ -43,10 +52,12 @@
     }
 }
 
+
 - (IBAction)resign:(id)sender {
     //Save cert name
     [defaults setValue:[certField stringValue] forKey:@"CERT_NAME"];
     [defaults setValue:[provisioningPathField stringValue] forKey:@"MOBILEPROVISION_PATH"];
+    [defaults setValue:[bundleIDField stringValue] forKey:kKeyPrefsBundleIDChange];
     [defaults synchronize];
     
     codesigningResult = nil;
@@ -59,6 +70,7 @@
         [self disableControls];
         
         NSLog(@"Setting up working directory in %@",workingPath);
+        [statusLabel setHidden:NO];
         [statusLabel setStringValue:@"Setting up working directory"];
         
         [[NSFileManager defaultManager] removeItemAtPath:workingPath error:nil];
@@ -95,6 +107,11 @@
         if ([[NSFileManager defaultManager] fileExistsAtPath:[workingPath stringByAppendingPathComponent:@"Payload"]]) {
             NSLog(@"Unzipping done");
             [statusLabel setStringValue:@"Original app extracted"];
+            
+            if (changeBundleIDCheckbox.state == NSOnState) {
+                [self doBundleIDChange:bundleIDField.stringValue];
+            }
+            
             if ([[provisioningPathField stringValue] isEqualTo:@""]) {
                 [self doCodeSigning];
             } else {
@@ -109,6 +126,65 @@
         }
     }
 }
+
+- (BOOL)doBundleIDChange:(NSString *)newBundleID {
+    BOOL success = YES;
+    
+    success &= [self doAppBundleIDChange:newBundleID];
+    success &= [self doITunesMetadataBundleIDChange:newBundleID];
+    
+    return success;
+}
+
+
+- (BOOL)doITunesMetadataBundleIDChange:(NSString *)newBundleID {
+    NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:workingPath error:nil];
+    NSString *infoPlistPath = nil;
+
+    for (NSString *file in dirContents) {
+        if ([[[file pathExtension] lowercaseString] isEqualToString:@"plist"]) {
+            infoPlistPath = [workingPath stringByAppendingPathComponent:file];
+            break;
+        }
+    }
+    
+    return [self changeBundleIDForFile:infoPlistPath bundleIDKey:kKeyBundleIDPlistiTunesArtwork newBundleID:newBundleID plistOutOptions:NSPropertyListXMLFormat_v1_0];
+    
+}
+
+- (BOOL)doAppBundleIDChange:(NSString *)newBundleID {
+    NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[workingPath stringByAppendingPathComponent:kPayloadDirName] error:nil];
+    NSString *infoPlistPath = nil;
+    
+    for (NSString *file in dirContents) {
+        if ([[[file pathExtension] lowercaseString] isEqualToString:@"app"]) {
+            infoPlistPath = [[[workingPath stringByAppendingPathComponent:kPayloadDirName]
+                              stringByAppendingPathComponent:file]
+                             stringByAppendingPathComponent:kInfoPlistFilename];
+            break;
+        }
+    }
+    
+    return [self changeBundleIDForFile:infoPlistPath bundleIDKey:kKeyBundleIDPlistApp newBundleID:newBundleID plistOutOptions:NSPropertyListBinaryFormat_v1_0];
+}
+
+- (BOOL)changeBundleIDForFile:(NSString *)filePath bundleIDKey:(NSString *)bundleIDKey newBundleID:(NSString *)newBundleID plistOutOptions:(NSPropertyListWriteOptions)options {
+    
+    NSMutableDictionary *plist = nil;
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+        plist = [[[NSMutableDictionary alloc] initWithContentsOfFile:filePath] autorelease];
+        [plist setObject:newBundleID forKey:bundleIDKey];
+        
+        NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:plist format:options options:kCFPropertyListImmutable error:nil];
+
+        return [xmlData writeToFile:filePath atomically:YES];
+
+    }
+    
+    return NO;
+}
+
 
 - (void)doProvisioning {
     NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[workingPath stringByAppendingPathComponent:@"Payload"] error:nil];
@@ -411,16 +487,29 @@
                     @"OK",nil, nil);
 }
 
+- (IBAction)changeBundleIDPressed:(id)sender {
+    
+    if (sender != changeBundleIDCheckbox) {
+        return;
+    }
+    
+    bundleIDField.enabled = changeBundleIDCheckbox.state == NSOnState;
+}
+
 - (void)disableControls {
     [pathField setEnabled:FALSE];
     [certField setEnabled:FALSE];
     [browseButton setEnabled:FALSE];
     [resignButton setEnabled:FALSE];
+    [provisioningBrowseButton setEnabled:NO];
+    [provisioningPathField setEnabled:NO];
+    [changeBundleIDCheckbox setEnabled:NO];
+    [bundleIDField setEnabled:NO];
     
     [flurry startAnimation:self];
     [flurry setAlphaValue:1.0];
     
-    [self resizeWindow:185];
+    [self resizeWindow:210];
 }
 
 - (void)enableControls {
@@ -428,6 +517,10 @@
     [certField setEnabled:TRUE];
     [browseButton setEnabled:TRUE];
     [resignButton setEnabled:TRUE];
+    [provisioningBrowseButton setEnabled:YES];
+    [provisioningPathField setEnabled:YES];
+    [changeBundleIDCheckbox setEnabled:YES];
+    [bundleIDField setEnabled:changeBundleIDCheckbox.state == NSOnState];
     
     [flurry stopAnimation:self];
     [flurry setAlphaValue:0.5];
