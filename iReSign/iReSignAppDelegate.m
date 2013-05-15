@@ -420,7 +420,7 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
         zipTask = [[NSTask alloc] init];
         [zipTask setLaunchPath:@"/usr/bin/zip"];
         [zipTask setCurrentDirectoryPath:workingPath];
-        [zipTask setArguments:[NSArray arrayWithObjects:@"-qr", destinationPath, @".", nil]];
+        [zipTask setArguments:[NSArray arrayWithObjects:@"-qry", destinationPath, @".", nil]];
 		
         [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkZip:) userInfo:nil repeats:TRUE];
         
