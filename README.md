@@ -5,11 +5,8 @@ iReSign allows iDevice app bundles (.ipa) files to be signed or resigned with a 
 ## Requirements ##
 
 - Mac OS 10.5+
-
 - A certificate issued by Apple.
-
 - Apple _applewwcdr_ intermediate certificate must be trusted.
-
 - Xcode *latest* version for your OS (please).
 
 The *codesign* tool needs *codesign_allocate* (contained within Xcode itself) in order to perform the re-signing process and validating the result correctly. To ensure this is done, execute the following commands:
