@@ -39,6 +39,11 @@
     IBOutlet NSProgressIndicator *flurry;
     IBOutlet NSButton *changeBundleIDCheckbox;
     
+    IBOutlet NSComboBox *certComboBox;
+    NSMutableArray *certComboBoxItems;
+    NSTask *certTask;
+    NSArray *getCertsResult;
+    
 }
 
 @property (assign) IBOutlet NSWindow *window;
