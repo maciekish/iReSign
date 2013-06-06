@@ -22,10 +22,13 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    [self resizeWindow:184];
+    [self resizeWindow:214];
     [flurry setAlphaValue:0.5];
     
     defaults = [NSUserDefaults standardUserDefaults];
+    
+    // Look up available signing certificates
+    [self getCerts];
     
     if ([defaults valueForKey:@"CERT_NAME"])
         [certField setStringValue:[defaults valueForKey:@"CERT_NAME"]];
@@ -55,6 +58,7 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
 
 - (IBAction)resign:(id)sender {
     //Save cert name
+    [defaults setValue:[NSNumber numberWithInteger:[certComboBox indexOfSelectedItem]] forKey:@"CERT_INDEX"];
     [defaults setValue:[certField stringValue] forKey:@"CERT_NAME"];
     [defaults setValue:[provisioningPathField stringValue] forKey:@"MOBILEPROVISION_PATH"];
     [defaults setValue:[bundleIDField stringValue] forKey:kKeyPrefsBundleIDChange];
@@ -66,32 +70,40 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
     originalIpaPath = [[pathField stringValue] retain];
     workingPath = [[NSTemporaryDirectory() stringByAppendingPathComponent:@"com.appulize.iresign"] retain];
     
-    if ([[[originalIpaPath pathExtension] lowercaseString] isEqualToString:@"ipa"]) {
-        [self disableControls];
-        
-        NSLog(@"Setting up working directory in %@",workingPath);
-        [statusLabel setHidden:NO];
-        [statusLabel setStringValue:@"Setting up working directory"];
-        
-        [[NSFileManager defaultManager] removeItemAtPath:workingPath error:nil];
-        
-        [[NSFileManager defaultManager] createDirectoryAtPath:workingPath withIntermediateDirectories:TRUE attributes:nil error:nil];
-        
-        if (originalIpaPath && [originalIpaPath length] > 0) {
-            NSLog(@"Unzipping %@",originalIpaPath);
-            [statusLabel setStringValue:@"Extracting original app"];
+    if ([certComboBox objectValue]) {
+        if ([[[originalIpaPath pathExtension] lowercaseString] isEqualToString:@"ipa"]) {
+            [self disableControls];
+            
+            NSLog(@"Setting up working directory in %@",workingPath);
+            [statusLabel setHidden:NO];
+            [statusLabel setStringValue:@"Setting up working directory"];
+            
+            [[NSFileManager defaultManager] removeItemAtPath:workingPath error:nil];
+            
+            [[NSFileManager defaultManager] createDirectoryAtPath:workingPath withIntermediateDirectories:TRUE attributes:nil error:nil];
+            
+            if (originalIpaPath && [originalIpaPath length] > 0) {
+                NSLog(@"Unzipping %@",originalIpaPath);
+                [statusLabel setStringValue:@"Extracting original app"];
+            }
+            
+            unzipTask = [[NSTask alloc] init];
+            [unzipTask setLaunchPath:@"/usr/bin/unzip"];
+            [unzipTask setArguments:[NSArray arrayWithObjects:@"-q", originalIpaPath, @"-d", workingPath, nil]];
+            
+            [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkUnzip:) userInfo:nil repeats:TRUE];
+            
+            [unzipTask launch];
+        } else {
+            NSRunAlertPanel(@"Error",
+                            @"You must choose an *.ipa file",
+                            @"OK",nil,nil);
+            [self enableControls];
+            [statusLabel setStringValue:@"Please try again"];
         }
-        
-        unzipTask = [[NSTask alloc] init];
-        [unzipTask setLaunchPath:@"/usr/bin/unzip"];
-        [unzipTask setArguments:[NSArray arrayWithObjects:@"-q", originalIpaPath, @"-d", workingPath, nil]];
-		
-        [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkUnzip:) userInfo:nil repeats:TRUE];
-        
-        [unzipTask launch];
     } else {
-        NSRunAlertPanel(@"Error", 
-                        @"You must choose an *.ipa file",
+        NSRunAlertPanel(@"Error",
+                        @"You must choose an signing certificate from dropdown.",
                         @"OK",nil,nil);
         [self enableControls];
         [statusLabel setStringValue:@"Please try again"];
@@ -313,7 +325,7 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
         
         codesignTask = [[NSTask alloc] init];
         [codesignTask setLaunchPath:@"/usr/bin/codesign"];
-        [codesignTask setArguments:[NSArray arrayWithObjects:@"-fs", [certField stringValue], resourceRulesArgument, appPath, nil]];
+        [codesignTask setArguments:[NSArray arrayWithObjects:@"-fs", [certComboBox objectValue], resourceRulesArgument, appPath, nil]];
 		
         [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkCodesigning:) userInfo:nil repeats:TRUE];
         
@@ -505,11 +517,12 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
     [provisioningPathField setEnabled:NO];
     [changeBundleIDCheckbox setEnabled:NO];
     [bundleIDField setEnabled:NO];
+    [certComboBox setEnabled:NO];
     
     [flurry startAnimation:self];
     [flurry setAlphaValue:1.0];
     
-    [self resizeWindow:210];
+    [self resizeWindow:240];
 }
 
 - (void)enableControls {
@@ -521,6 +534,7 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
     [provisioningPathField setEnabled:YES];
     [changeBundleIDCheckbox setEnabled:YES];
     [bundleIDField setEnabled:changeBundleIDCheckbox.state == NSOnState];
+    [certComboBox setEnabled:YES];
     
     [flurry stopAnimation:self];
     [flurry setAlphaValue:0.5];
@@ -533,5 +547,103 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
     
     [window setFrame:r display:YES animate:YES];
 }
+
+-(NSInteger)numberOfItemsInComboBox:(NSComboBox *)aComboBox {
+    NSInteger count = 0;
+    if ([aComboBox isEqual:certComboBox]) {
+        count = [certComboBoxItems count];
+    } 
+    return count;
+}
+
+- (id)comboBox:(NSComboBox *)aComboBox objectValueForItemAtIndex:(NSInteger)index {
+    id item = nil;
+    if ([aComboBox isEqual:certComboBox]) {
+        item = [certComboBoxItems objectAtIndex:index];
+    }
+    return item;
+}
+
+- (void)getCerts {
+    
+    getCertsResult = nil;
+    
+    NSLog(@"Getting Certificate IDs");
+    [statusLabel setStringValue:@"Getting Signing Certificate IDs"];
+    
+    certTask = [[NSTask alloc] init];
+    [certTask setLaunchPath:@"/usr/bin/security"];
+    [certTask setArguments:[NSArray arrayWithObjects:@"find-identity", @"-v", @"-p", @"codesigning", nil]];
+    
+    [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkCerts:) userInfo:nil repeats:TRUE];
+    
+    NSPipe *pipe=[NSPipe pipe];
+    [certTask setStandardOutput:pipe];
+    [certTask setStandardError:pipe];
+    NSFileHandle *handle=[pipe fileHandleForReading];
+    
+    [certTask launch];
+    
+    [NSThread detachNewThreadSelector:@selector(watchGetCerts:) toTarget:self withObject:handle];
+}
+
+- (void)watchGetCerts:(NSFileHandle*)streamHandle {
+    NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
+    
+    NSString *securityResult = [[NSString alloc] initWithData:[streamHandle readDataToEndOfFile] encoding:NSASCIIStringEncoding];
+    
+    NSArray *rawResult = [securityResult componentsSeparatedByString:@"\""];
+    [securityResult release];
+    
+    NSMutableArray *tempGetCertsResult = [NSMutableArray arrayWithCapacity:20];
+    for (int i = 0; i <= [rawResult count] - 2; i+=2) {
+        
+        NSLog(@"i:%d", i+1);
+        [tempGetCertsResult addObject:[rawResult objectAtIndex:i+1]];
+    }
+    
+    certComboBoxItems = [[NSArray arrayWithArray:tempGetCertsResult] retain];
+    
+    [certComboBox reloadData];
+    
+    [pool release];
+}
+
+- (void)checkCerts:(NSTimer *)timer {
+    if ([certTask isRunning] == 0) {
+        [timer invalidate];
+        [certTask release];
+        certTask = nil;
+        
+        if ([certComboBoxItems count] > 0) {
+            NSLog(@"Get Certs done");
+            [statusLabel setStringValue:@"Signing Certificate IDs extracted"];
+            
+            if ([defaults valueForKey:@"CERT_INDEX"]) {
+                
+                NSInteger selectedIndex = [[defaults valueForKey:@"CERT_INDEX"] integerValue];
+                if (selectedIndex != -1) {
+                    NSString *selectedItem = [self comboBox:certComboBox objectValueForItemAtIndex:selectedIndex];
+                    [certComboBox setObjectValue:selectedItem];
+                    [certComboBox selectItemAtIndex:selectedIndex];
+                }
+                
+                [self enableControls];
+            }
+        } else {
+            NSRunAlertPanel(@"Error",
+                            @"Getting Certificate IDs failed",
+                            @"OK",nil,nil);
+            [self enableControls];
+            [statusLabel setStringValue:@"Ready"];
+        }
+    }
+}
+
+- (void)dealloc {
+    [certComboBoxItems release];
+    [super dealloc];
+}
+
 
 @end
