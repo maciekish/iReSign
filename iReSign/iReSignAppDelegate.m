@@ -22,7 +22,7 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    [self resizeWindow:214];
+    [self resizeWindow:235];
     [flurry setAlphaValue:0.5];
     
     defaults = [NSUserDefaults standardUserDefaults];
@@ -30,8 +30,8 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
     // Look up available signing certificates
     [self getCerts];
     
-    if ([defaults valueForKey:@"CERT_NAME"])
-        [certField setStringValue:[defaults valueForKey:@"CERT_NAME"]];
+    if ([defaults valueForKey:@"ENTITLEMENT_PATH"])
+        [entitlementField setStringValue:[defaults valueForKey:@"ENTITLEMENT_PATH"]];
     if ([defaults valueForKey:@"MOBILEPROVISION_PATH"])
         [provisioningPathField setStringValue:[defaults valueForKey:@"MOBILEPROVISION_PATH"]];
     
@@ -59,7 +59,7 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
 - (IBAction)resign:(id)sender {
     //Save cert name
     [defaults setValue:[NSNumber numberWithInteger:[certComboBox indexOfSelectedItem]] forKey:@"CERT_INDEX"];
-    [defaults setValue:[certField stringValue] forKey:@"CERT_NAME"];
+    [defaults setValue:[entitlementField stringValue] forKey:@"ENTITLEMENT_PATH"];
     [defaults setValue:[provisioningPathField stringValue] forKey:@"MOBILEPROVISION_PATH"];
     [defaults setValue:[bundleIDField stringValue] forKey:kKeyPrefsBundleIDChange];
     [defaults synchronize];
@@ -323,9 +323,17 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
         NSString *resourceRulesPath = [[NSBundle mainBundle] pathForResource:@"ResourceRules" ofType:@"plist"];
         NSString *resourceRulesArgument = [NSString stringWithFormat:@"--resource-rules=%@",resourceRulesPath];
         
+        NSMutableArray *arguments = [NSMutableArray arrayWithObjects:@"-fs", [certComboBox objectValue], resourceRulesArgument, nil];
+      
+        if (![[entitlementField stringValue] isEqualToString:@""]) {
+          [arguments addObject:[NSString stringWithFormat:@"--entitlements=%@", [entitlementField stringValue]]];
+        }
+      
+        [arguments addObjectsFromArray:[NSArray arrayWithObjects:appPath, nil]];
+    
         codesignTask = [[NSTask alloc] init];
         [codesignTask setLaunchPath:@"/usr/bin/codesign"];
-        [codesignTask setArguments:[NSArray arrayWithObjects:@"-fs", [certComboBox objectValue], resourceRulesArgument, appPath, nil]];
+        [codesignTask setArguments:arguments];
 		
         [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkCodesigning:) userInfo:nil repeats:TRUE];
         
@@ -493,6 +501,21 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
     }
 }
 
+- (IBAction)entitlementBrowse:(id)sender {
+  NSOpenPanel* openDlg = [NSOpenPanel openPanel];
+  
+  [openDlg setCanChooseFiles:TRUE];
+  [openDlg setCanChooseDirectories:FALSE];
+  [openDlg setAllowsMultipleSelection:FALSE];
+  [openDlg setAllowsOtherFileTypes:FALSE];
+  
+  if ( [openDlg runModalForTypes:[NSArray arrayWithObject:@"plist"]] == NSOKButton )
+  {
+    NSString* fileNameOpened = [[openDlg filenames] objectAtIndex:0];
+    [entitlementField setStringValue:fileNameOpened];
+  }
+}
+
 - (IBAction)showHelp:(id)sender {
     NSRunAlertPanel(@"How to use iReSign", 
                     @"iReSign allows you to re-sign any unencrypted ipa-file with any certificate for which you hold the corresponding private key.\n\n1. Drag your unsigned .ipa file to the top box, or use the browse button.\n\n2. Enter your full certificate name from Keychain Access, for example \"iPhone Developer: Firstname Lastname (XXXXXXXXXX)\" in the bottom box.\n\n3. Click ReSign! and wait. The resigned file will be saved in the same folder as the original file.",
@@ -510,7 +533,7 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
 
 - (void)disableControls {
     [pathField setEnabled:FALSE];
-    [certField setEnabled:FALSE];
+    [entitlementField setEnabled:FALSE];
     [browseButton setEnabled:FALSE];
     [resignButton setEnabled:FALSE];
     [provisioningBrowseButton setEnabled:NO];
@@ -522,12 +545,12 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
     [flurry startAnimation:self];
     [flurry setAlphaValue:1.0];
     
-    [self resizeWindow:240];
+    [self resizeWindow:260];
 }
 
 - (void)enableControls {
     [pathField setEnabled:TRUE];
-    [certField setEnabled:TRUE];
+    [entitlementField setEnabled:TRUE];
     [browseButton setEnabled:TRUE];
     [resignButton setEnabled:TRUE];
     [provisioningBrowseButton setEnabled:YES];

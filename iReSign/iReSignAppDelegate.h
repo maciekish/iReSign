@@ -30,10 +30,11 @@
     
     IBOutlet IRTextFieldDrag *pathField;
     IBOutlet IRTextFieldDrag *provisioningPathField;
-    IBOutlet IRTextFieldDrag *certField;
+    IBOutlet IRTextFieldDrag *entitlementField;
     IBOutlet IRTextFieldDrag *bundleIDField;
     IBOutlet NSButton    *browseButton;
     IBOutlet NSButton    *provisioningBrowseButton;
+    IBOutlet NSButton *entitlementBrowseButton;
     IBOutlet NSButton    *resignButton;
     IBOutlet NSTextField *statusLabel;
     IBOutlet NSProgressIndicator *flurry;
@@ -53,6 +54,7 @@
 - (IBAction)resign:(id)sender;
 - (IBAction)browse:(id)sender;
 - (IBAction)provisioningBrowse:(id)sender;
+- (IBAction)entitlementBrowse:(id)sender;
 - (IBAction)showHelp:(id)sender;
 - (IBAction)changeBundleIDPressed:(id)sender;
 
