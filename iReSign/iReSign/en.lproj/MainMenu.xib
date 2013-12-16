@@ -252,12 +252,12 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" id="OGH-jD-zcO">
-                        <rect key="frame" x="20" y="190.0000017943762" width="69" height="69"/>
+                        <rect key="frame" x="20" y="190" width="69" height="69"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="Icon" id="LSY-JN-rDx"/>
                     </imageView>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Ft3-WI-tTm">
-                        <rect key="frame" x="101.00000067379159" y="239.0000017943762" width="303" height="20"/>
+                        <rect key="frame" x="101.00000067379159" y="239" width="303" height="20"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="How to use iReSign" id="QDO-Yr-Chc">
                             <font key="font" size="14" name="LucidaGrande-Bold"/>
