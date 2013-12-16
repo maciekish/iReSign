@@ -10,7 +10,7 @@
 
 @interface iReSignAppDelegate : NSObject <NSApplicationDelegate> {
 @private
-    NSWindow *window;
+    NSWindow *__unsafe_unretained window;
     
     NSUserDefaults *defaults;
     
@@ -47,15 +47,14 @@
     
 }
 
-@property (assign) IBOutlet NSWindow *window;
+@property (unsafe_unretained) IBOutlet NSWindow *window;
 
-@property (nonatomic, retain) NSString *workingPath;
+@property (nonatomic, strong) NSString *workingPath;
 
 - (IBAction)resign:(id)sender;
 - (IBAction)browse:(id)sender;
 - (IBAction)provisioningBrowse:(id)sender;
 - (IBAction)entitlementBrowse:(id)sender;
-- (IBAction)showHelp:(id)sender;
 - (IBAction)changeBundleIDPressed:(id)sender;
 
 - (void)checkUnzip:(NSTimer *)timer;
@@ -69,6 +68,5 @@
 - (void)checkZip:(NSTimer *)timer;
 - (void)disableControls;
 - (void)enableControls;
-- (void)resizeWindow:(int)newHeight;
 
 @end
