@@ -575,13 +575,22 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
     @autoreleasepool {
         
         NSString *securityResult = [[NSString alloc] initWithData:[streamHandle readDataToEndOfFile] encoding:NSASCIIStringEncoding];
+        // Verify the security result
+        if (securityResult == nil || securityResult.length < 1) {
+            // Nothing in the result, return
+            return;
+        }
         NSArray *rawResult = [securityResult componentsSeparatedByString:@"\""];
-        
         NSMutableArray *tempGetCertsResult = [NSMutableArray arrayWithCapacity:20];
         for (int i = 0; i <= [rawResult count] - 2; i+=2) {
             
             NSLog(@"i:%d", i+1);
-            [tempGetCertsResult addObject:[rawResult objectAtIndex:i+1]];
+            if (rawResult.count - 1 < i + 1) {
+                // Invalid array, don't add an object to that position
+            } else {
+                // Valid object
+                [tempGetCertsResult addObject:[rawResult objectAtIndex:i+1]];
+            }
         }
         
         certComboBoxItems = [NSMutableArray arrayWithArray:tempGetCertsResult];
