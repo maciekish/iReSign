@@ -12,6 +12,11 @@ static NSString *kKeyPrefsBundleIDChange        = @"keyBundleIDChange";
 static NSString *kKeyBundleIDPlistApp           = @"CFBundleIdentifier";
 static NSString *kKeyBundleIDPlistiTunesArtwork = @"softwareVersionBundleId";
 
+static NSString *kKeyShortBundleVersionPlistApp = @"CFBundleShortVersionString";
+static NSString *kKeyBundleVersionPlistApp      = @"CFBundleVersion";
+static NSString *kKeyBundleDisplayNamePlistApp  = @"CFBundleDisplayName";
+static NSString *kKeyBundleNamePlistApp         = @"CFBundleName";
+
 static NSString *kPayloadDirName                = @"Payload";
 static NSString *kInfoPlistFilename             = @"Info.plist";
 static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
@@ -22,7 +27,6 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    [self resizeWindow:235];
     [flurry setAlphaValue:0.5];
     
     defaults = [NSUserDefaults standardUserDefaults];
@@ -124,6 +128,16 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
                 [self doBundleIDChange:bundleIDField.stringValue];
             }
             
+            if (changeAppnameCheckbox.state == NSOnState) {
+                [self doInfoPlistValueChange:kKeyBundleNamePlistApp value:appnameField.stringValue];
+                [self doInfoPlistValueChange:kKeyBundleDisplayNamePlistApp value:appnameField.stringValue];
+            }
+            
+            if (changeVersionCheckbox.state == NSOnState) {
+                [self doInfoPlistValueChange:kKeyBundleVersionPlistApp value:versionField.stringValue];
+                [self doInfoPlistValueChange:kKeyShortBundleVersionPlistApp value:versionField.stringValue];
+            }
+            
             if ([[provisioningPathField stringValue] isEqualTo:@""]) {
                 [self doCodeSigning];
             } else {
@@ -180,6 +194,22 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
     return [self changeBundleIDForFile:infoPlistPath bundleIDKey:kKeyBundleIDPlistApp newBundleID:newBundleID plistOutOptions:NSPropertyListBinaryFormat_v1_0];
 }
 
+- (BOOL)doInfoPlistValueChange:(NSString *)key value:(NSString *)newValue {
+    NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[workingPath stringByAppendingPathComponent:kPayloadDirName] error:nil];
+    NSString *infoPlistPath = nil;
+    
+    for (NSString *file in dirContents) {
+        if ([[[file pathExtension] lowercaseString] isEqualToString:@"app"]) {
+            infoPlistPath = [[[workingPath stringByAppendingPathComponent:kPayloadDirName]
+                              stringByAppendingPathComponent:file]
+                             stringByAppendingPathComponent:kInfoPlistFilename];
+            break;
+        }
+    }
+    
+    return [self changeValueInPlistFile:infoPlistPath key:key newValue:newValue plistOutOptions:NSPropertyListBinaryFormat_v1_0];
+}
+
 - (BOOL)changeBundleIDForFile:(NSString *)filePath bundleIDKey:(NSString *)bundleIDKey newBundleID:(NSString *)newBundleID plistOutOptions:(NSPropertyListWriteOptions)options {
     
     NSMutableDictionary *plist = nil;
@@ -192,6 +222,23 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
 
         return [xmlData writeToFile:filePath atomically:YES];
 
+    }
+    
+    return NO;
+}
+
+- (BOOL)changeValueInPlistFile:(NSString *)filePath key:(NSString *)key newValue:(NSString *)newValue plistOutOptions:(NSPropertyListWriteOptions)options {
+    
+    NSMutableDictionary *plist = nil;
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+        plist = [[[NSMutableDictionary alloc] initWithContentsOfFile:filePath] autorelease];
+        [plist setObject:newValue forKey:key];
+        
+        NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:plist format:options options:kCFPropertyListImmutable error:nil];
+        
+        return [xmlData writeToFile:filePath atomically:YES];
+        
     }
     
     return NO;
@@ -531,6 +578,22 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
     bundleIDField.enabled = changeBundleIDCheckbox.state == NSOnState;
 }
 
+- (IBAction)changeVersionPressed:(id)sender {
+    if (sender != changeVersionCheckbox) {
+        return;
+    }
+    
+    versionField.enabled = changeVersionCheckbox.state == NSOnState;
+}
+
+- (IBAction)changeAppnamePressed:(id)sender {
+    if (sender != changeAppnameCheckbox) {
+        return;
+    }
+    
+    appnameField.enabled = changeAppnameCheckbox.state == NSOnState;
+}
+
 - (void)disableControls {
     [pathField setEnabled:FALSE];
     [entitlementField setEnabled:FALSE];
@@ -544,8 +607,6 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
     
     [flurry startAnimation:self];
     [flurry setAlphaValue:1.0];
-    
-    [self resizeWindow:260];
 }
 
 - (void)enableControls {
@@ -561,14 +622,6 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
     
     [flurry stopAnimation:self];
     [flurry setAlphaValue:0.5];
-}
-
-- (void)resizeWindow:(int)newHeight {
-    NSRect r;
-    
-    r = NSMakeRect([window frame].origin.x - ([window frame].size.width - (int)(NSWidth([window frame]))), [window frame].origin.y - (newHeight - (int)(NSHeight([window frame]))), [window frame].size.width, newHeight);
-    
-    [window setFrame:r display:YES animate:YES];
 }
 
 -(NSInteger)numberOfItemsInComboBox:(NSComboBox *)aComboBox {
