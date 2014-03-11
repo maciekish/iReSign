@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>55C76783-2CEC-4A8B-BA32-DF9DAB6B90C5</string>
+	<key>IDESourceControlProjectName</key>
+	<string>iReSign</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>5262FFB5-D09D-420A-A885-2F479E73F7CA</key>
+		<string>https://github.com/Shmoopi/iReSign.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>iReSign.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>5262FFB5-D09D-420A-A885-2F479E73F7CA</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/Shmoopi/iReSign.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>5262FFB5-D09D-420A-A885-2F479E73F7CA</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>5262FFB5-D09D-420A-A885-2F479E73F7CA</string>
+			<key>IDESourceControlWCCName</key>
+			<string>iReSign</string>
+		</dict>
+	</array>
+</dict>
+</plist>
