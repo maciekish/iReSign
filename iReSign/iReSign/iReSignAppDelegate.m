@@ -270,7 +270,7 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
                     if (identifierOK) {
                         NSLog(@"Provisioning completed.");
                         [statusLabel setStringValue:@"Provisioning completed"];
-                        [self doCodeSigning];
+                        [self doEntitlementsFixing];
                     } else {
                         [self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"Product identifiers don't match"];
                         [self enableControls];
@@ -284,6 +284,69 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
                 break;
             }
         }
+    }
+}
+
+- (void)doEntitlementsFixing
+{
+    if (![entitlementField.stringValue isEqualToString:@""] || [provisioningPathField.stringValue isEqualToString:@""]) {
+        [self doCodeSigning];
+        return; // Using a pre-made entitlements file or we're not re-provisioning.
+    }
+    
+    [statusLabel setStringValue:@"Generating entitlements"];
+
+    if (appPath) {
+        generateEntitlementsTask = [[NSTask alloc] init];
+        [generateEntitlementsTask setLaunchPath:@"/usr/bin/security"];
+        [generateEntitlementsTask setArguments:@[@"cms", @"-D", @"-i", provisioningPathField.stringValue]];
+        [generateEntitlementsTask setCurrentDirectoryPath:workingPath];
+
+        [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkEntitlementsFix:) userInfo:nil repeats:TRUE];
+
+        NSPipe *pipe=[NSPipe pipe];
+        [generateEntitlementsTask setStandardOutput:pipe];
+        [generateEntitlementsTask setStandardError:pipe];
+        NSFileHandle *handle = [pipe fileHandleForReading];
+
+        [generateEntitlementsTask launch];
+
+        [NSThread detachNewThreadSelector:@selector(watchEntitlements:)
+                                 toTarget:self withObject:handle];
+    }
+}
+
+- (void)watchEntitlements:(NSFileHandle*)streamHandle {
+    @autoreleasepool {
+        entitlementsResult = [[NSString alloc] initWithData:[streamHandle readDataToEndOfFile] encoding:NSASCIIStringEncoding];
+    }
+}
+
+- (void)checkEntitlementsFix:(NSTimer *)timer {
+    if ([generateEntitlementsTask isRunning] == 0) {
+        [timer invalidate];
+        generateEntitlementsTask = nil;
+        NSLog(@"Entitlements fixed done");
+        [statusLabel setStringValue:@"Entitlements generated"];
+        [self doEntitlementsEdit];
+    }
+}
+
+- (void)doEntitlementsEdit
+{
+    NSDictionary* entitlements = entitlementsResult.propertyList;
+    entitlements = entitlements[@"Entitlements"];
+    NSString* filePath = [workingPath stringByAppendingPathComponent:@"entitlements.plist"];
+    NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:entitlements format:NSPropertyListXMLFormat_v1_0 options:kCFPropertyListImmutable error:nil];
+    if(![xmlData writeToFile:filePath atomically:YES]) {
+        NSLog(@"Error writing entitlements file.");
+        [self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"Failed entitlements generation"];
+        [self enableControls];
+        [statusLabel setStringValue:@"Ready"];
+    }
+    else {
+        entitlementField.stringValue = filePath;
+        [self doCodeSigning];
     }
 }
 
