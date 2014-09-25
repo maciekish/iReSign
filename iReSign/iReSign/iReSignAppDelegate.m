@@ -303,10 +303,16 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
     }
     
     if (appPath) {
-        NSString *resourceRulesPath = [[NSBundle mainBundle] pathForResource:@"ResourceRules" ofType:@"plist"];
-        NSString *resourceRulesArgument = [NSString stringWithFormat:@"--resource-rules=%@",resourceRulesPath];
-        
-        NSMutableArray *arguments = [NSMutableArray arrayWithObjects:@"-fs", [certComboBox objectValue], resourceRulesArgument, nil];
+        NSMutableArray *arguments = [NSMutableArray arrayWithObjects:@"-fs", [certComboBox objectValue], nil];
+	
+	NSDictionary *systemVersionDictionary = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
+	float systemVersionFloat = [[systemVersionDictionary objectForKey:@"ProductVersion"] floatValue];
+	if (systemVersionFloat < 10.9f) {
+		// add the resources flag for version 1 code signatures, only valid before OSX 10.9
+		NSString *resourceRulesPath = [[NSBundle mainBundle] pathForResource:@"ResourceRules" ofType:@"plist"];
+		NSString *resourceRulesArgument = [NSString stringWithFormat:@"--resource-rules=%@",resourceRulesPath];
+		[arguments addObject:resourceRulesArgument];
+	}
         
         if (![[entitlementField stringValue] isEqualToString:@""]) {
             [arguments addObject:[NSString stringWithFormat:@"--entitlements=%@", [entitlementField stringValue]]];
