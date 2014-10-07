@@ -379,7 +379,7 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
     if (appPath) {
         verifyTask = [[NSTask alloc] init];
         [verifyTask setLaunchPath:@"/usr/bin/codesign"];
-        [verifyTask setArguments:[NSArray arrayWithObjects:@"-v", appPath, nil]];
+        [verifyTask setArguments:[NSArray arrayWithObjects:@"-v", @"--no-strict", appPath, nil]]; // Fix the "resource envelope is obsolete" on OSX 10.9.5 and Xcode 6 
 		
         [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkVerificationProcess:) userInfo:nil repeats:TRUE];
         
