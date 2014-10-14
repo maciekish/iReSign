@@ -330,6 +330,7 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
 		NSMutableDictionary *infoDict = [NSMutableDictionary dictionaryWithContentsOfFile:infoPath];
 		[infoDict removeObjectForKey:@"CFBundleResourceSpecification"];
 		[infoDict writeToFile:infoPath atomically:YES];
+		[arguments addObject:@"--no-strict"]; // http://stackoverflow.com/a/26204757
 	}
         
         if (![[entitlementField stringValue] isEqualToString:@""]) {
