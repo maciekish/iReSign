@@ -306,8 +306,8 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
         NSMutableArray *arguments = [NSMutableArray arrayWithObjects:@"-fs", [certComboBox objectValue], nil];
 		
 	NSDictionary *systemVersionDictionary = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
-	float systemVersionFloat = [[systemVersionDictionary objectForKey:@"ProductVersion"] floatValue];
-	if (systemVersionFloat < 10.9f) {
+	NSString *systemVersion = [systemVersionDictionary objectForKey:@"ProductVersion"];
+	if ([systemVersion compare:@"10.9" options:NSNumericSearch] == NSOrderedAscending) {
 		
 		/*
 		 Before OSX 10.9, code signing requires a version 1 signature.
