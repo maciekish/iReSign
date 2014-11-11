@@ -305,32 +305,36 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
     if (appPath) {
         NSMutableArray *arguments = [NSMutableArray arrayWithObjects:@"-fs", [certComboBox objectValue], nil];
 		
-	NSDictionary *systemVersionDictionary = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
-	float systemVersionFloat = [[systemVersionDictionary objectForKey:@"ProductVersion"] floatValue];
-	if (systemVersionFloat < 10.9f) {
-		
-		/*
-		 Before OSX 10.9, code signing requires a version 1 signature.
-		 The resource envelope is necessary.
-		 To ensure it is added, append the resource flag to the arguments.
-		 */
-		
-		NSString *resourceRulesPath = [[NSBundle mainBundle] pathForResource:@"ResourceRules" ofType:@"plist"];
-		NSString *resourceRulesArgument = [NSString stringWithFormat:@"--resource-rules=%@",resourceRulesPath];
-		[arguments addObject:resourceRulesArgument];
-	} else {
-		
-		/*
-		 For OSX 10.9 and later, code signing requires a version 2 signature.
-		 The resource envelope is obsolete.
-		 To ensure it is ignored, remove the resource key from the Info.plist file.
-		 */
-		
-		NSString *infoPath = [NSString stringWithFormat:@"%@/Info.plist", appPath];
-		NSMutableDictionary *infoDict = [NSMutableDictionary dictionaryWithContentsOfFile:infoPath];
-		[infoDict removeObjectForKey:@"CFBundleResourceSpecification"];
-		[infoDict writeToFile:infoPath atomically:YES];
-	}
+        NSDictionary *systemVersionDictionary = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
+        
+        NSString *systemVersionString           = systemVersionDictionary[@"ProductVersion"];
+        NSArray *systemVersionArray             = [systemVersionString componentsSeparatedByString:@"."];
+        NSString *systemSubversionString        = systemVersionArray[1];
+        NSInteger systemSubversionInteger       = [systemSubversionString integerValue];
+        
+        if (systemSubversionInteger < 9) {
+            /*
+             Before OSX 10.9, code signing requires a version 1 signature.
+             The resource envelope is necessary.
+             To ensure it is added, append the resource flag to the arguments.
+             */
+            
+            NSString *resourceRulesPath = [[NSBundle mainBundle] pathForResource:@"ResourceRules" ofType:@"plist"];
+            NSString *resourceRulesArgument = [NSString stringWithFormat:@"--resource-rules=%@",resourceRulesPath];
+            [arguments addObject:resourceRulesArgument];
+        } else {
+            
+            /*
+             For OSX 10.9 and later, code signing requires a version 2 signature.
+             The resource envelope is obsolete.
+             To ensure it is ignored, remove the resource key from the Info.plist file.
+             */
+            
+            NSString *infoPath = [NSString stringWithFormat:@"%@/Info.plist", appPath];
+            NSMutableDictionary *infoDict = [NSMutableDictionary dictionaryWithContentsOfFile:infoPath];
+            [infoDict removeObjectForKey:@"CFBundleResourceSpecification"];
+            [infoDict writeToFile:infoPath atomically:YES];
+        }
         
         if (![[entitlementField stringValue] isEqualToString:@""]) {
             [arguments addObject:[NSString stringWithFormat:@"--entitlements=%@", [entitlementField stringValue]]];
