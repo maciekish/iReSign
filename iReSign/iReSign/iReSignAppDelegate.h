@@ -19,6 +19,7 @@
     NSTask *unzipTask;
     NSTask *provisioningTask;
     NSTask *codesignTask;
+    NSTask *generateEntitlementsTask;
     NSTask *verifyTask;
     NSTask *zipTask;
     NSString *originalIpaPath;
@@ -27,6 +28,7 @@
     NSString *appName;
     NSString *fileName;
     
+    NSString *entitlementsResult;
     NSString *codesigningResult;
     NSString *verificationResult;
     
