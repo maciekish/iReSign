@@ -371,7 +371,7 @@ static NSString *kiTunesMetadataFileName        = @"iTunesMetadata";
 	NSDictionary *systemVersionDictionary = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
 	NSString * systemVersion = [systemVersionDictionary objectForKey:@"ProductVersion"];
     	NSArray * version = [systemVersion componentsSeparatedByString:@"."];
-	if ([version[0] intValue]<10 || ([version[0] intValue]==10 && [version[1] intValue]<=9)) {
+	if ([version[0] intValue]<10 || ([version[0] intValue]==10 && [version[1] intValue]<9)) {
 		
 		/*
 		 Before OSX 10.9, code signing requires a version 1 signature.
