@@ -17,12 +17,13 @@
     NSUserDefaults *defaults;
     
     NSTask *unzipTask;
+    NSTask *copyTask;
     NSTask *provisioningTask;
     NSTask *codesignTask;
     NSTask *generateEntitlementsTask;
     NSTask *verifyTask;
     NSTask *zipTask;
-    NSString *originalIpaPath;
+    NSString *sourcePath;
     NSString *appPath;
     NSString *workingPath;
     NSString *appName;
@@ -62,6 +63,7 @@
 - (IBAction)changeBundleIDPressed:(id)sender;
 
 - (void)checkUnzip:(NSTimer *)timer;
+- (void)checkCopy:(NSTimer *)timer;
 - (void)doProvisioning;
 - (void)checkProvisioning:(NSTimer *)timer;
 - (void)doCodeSigning;

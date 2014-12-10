@@ -1,14 +1,14 @@
 iReSign
 =======
 
-iReSign allows iDevice app bundles (.ipa) files to be signed or resigned with a digital certificate from Apple for distribution. This tool is aimed at enterprises users, for enterprise deployment, when the person signing the app is different than the person(s) developing it.
+iReSign allows iDevice app bundles (.ipa) files to be signed or resigned with a digital certificate from Apple for distribution. It can also create signed iDevice app bundles (.ipa) files from .xcarchive files.  This tool is aimed at enterprises users, for enterprise deployment, when the person signing the app is different than the person(s) developing it.
 
 How to use
 =======
 
-iReSign allows you to re-sign any unencrypted ipa-file with any certificate for which you hold the corresponding private key.
+iReSign allows you to re-sign any unencrypted ipa-file with any certificate for which you hold the corresponding private key. iResign can also created a signed ipa-file from an xcarchive file.
 
-1. Drag your unsigned .ipa file to the top box, or use the browse button.
+1. Drag your unsigned .ipa or .xcarchive file to the top box, or use the browse button.
 
 2. Enter your full certificate name from Keychain Access, for example "iPhone Developer: Firstname Lastname (XXXXXXXXXX)" in the bottom box.
 
