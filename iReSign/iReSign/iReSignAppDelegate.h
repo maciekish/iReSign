@@ -45,6 +45,12 @@
     IBOutlet NSProgressIndicator *flurry;
     IBOutlet NSButton *changeBundleIDCheckbox;
     
+    IBOutlet IRTextFieldDrag *displayNameField;
+    IBOutlet NSButton *changeDisplayNameCheckbox;
+    
+    IBOutlet IRTextFieldDrag *versionField;
+    IBOutlet NSButton *changeVersionCheckbox;
+    
     IBOutlet NSComboBox *certComboBox;
     NSMutableArray *certComboBoxItems;
     NSTask *certTask;
@@ -61,6 +67,8 @@
 - (IBAction)provisioningBrowse:(id)sender;
 - (IBAction)entitlementBrowse:(id)sender;
 - (IBAction)changeBundleIDPressed:(id)sender;
+- (IBAction)changeDisplayNamePressed:(id)sender;
+- (IBAction)changeVersionPressed:(id)sender;
 
 - (void)checkUnzip:(NSTimer *)timer;
 - (void)checkCopy:(NSTimer *)timer;
