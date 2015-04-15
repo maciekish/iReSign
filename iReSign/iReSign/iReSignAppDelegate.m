@@ -20,6 +20,8 @@ static NSString *kProductsDirName                   = @"Products";
 static NSString *kInfoPlistFilename                 = @"Info.plist";
 static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 
+static NSInteger kCertUUID6Prefix = 47;
+
 @implementation iReSignAppDelegate
 
 @synthesize window,workingPath;
@@ -746,16 +748,15 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
             // Nothing in the result, return
             return;
         }
-        NSArray *rawResult = [securityResult componentsSeparatedByString:@"\""];
+        NSArray *rawResult = [securityResult componentsSeparatedByString:@"\n"];
         NSMutableArray *tempGetCertsResult = [NSMutableArray arrayWithCapacity:20];
-        for (int i = 0; i <= [rawResult count] - 2; i+=2) {
-            
-            NSLog(@"i:%d", i+1);
-            if (rawResult.count - 1 < i + 1) {
-                // Invalid array, don't add an object to that position
-            } else {
-                // Valid object
-                [tempGetCertsResult addObject:[rawResult objectAtIndex:i+1]];
+        
+        for (NSString *line in rawResult) {
+            if (line.length > kCertUUID6Prefix) {
+                NSString *subLine = [[line substringFromIndex:kCertUUID6Prefix] stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+                if ([subLine rangeOfString:@"REVOKED"].length == 0) {
+                    [tempGetCertsResult addObject:subLine];
+                }
             }
         }
         
