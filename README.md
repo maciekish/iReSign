@@ -4,7 +4,7 @@ Fork of maciekish/iReSign https://github.com/maciekish/iReSign .
 
 iReSign allows iDevice app bundles (.ipa) files to be signed or resigned with a digital certificate from Apple for distribution. It can also create signed iDevice app bundles (.ipa) files from .xcarchive files.  This tool is aimed at enterprises users, for enterprise deployment, when the person signing the app is different than the person(s) developing it.
 
-Allows to edit version number of ipa.
+Allows to edit version number of ipa.（Not done）
 
 How to use
 =======
