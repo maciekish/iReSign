@@ -7,8 +7,11 @@ iReSign allows iDevice app bundles (.ipa) files to be signed or resigned with a 
 Allows to edit version number of ipa.
 
 iReSign有以下功能：
+
 1. 对ipa文件进行签名或重签名
+
 2. 使用.xcarchive文件来创建.ipa文件
+
 3. 允许更改ipa的bundle id，version等信息
 
 How to use
