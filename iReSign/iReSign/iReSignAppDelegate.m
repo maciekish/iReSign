@@ -306,7 +306,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
                     NSArray* embeddedProvisioningLines = [embeddedProvisioning componentsSeparatedByCharactersInSet:
                                                           [NSCharacterSet newlineCharacterSet]];
                     
-                    for (int i = 0; i <= [embeddedProvisioningLines count]; i++) {
+                    for (int i = 0; i < [embeddedProvisioningLines count]; i++) {
                         if ([[embeddedProvisioningLines objectAtIndex:i] rangeOfString:@"application-identifier"].location != NSNotFound) {
                             
                             NSInteger fromPosition = [[embeddedProvisioningLines objectAtIndex:i+1] rangeOfString:@"<string>"].location + 8;
