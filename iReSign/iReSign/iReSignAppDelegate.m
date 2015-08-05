@@ -347,7 +347,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
                     if (identifierOK) {
                         NSLog(@"Provisioning completed.");
                         [statusLabel setStringValue:@"Provisioning completed"];
-                        [self doEntitlementsFixing];
+                        [self checkProvisioningSignature];
                     } else {
                         [self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"Product identifiers don't match"];
                         [self enableControls];
@@ -359,6 +359,94 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
                     [statusLabel setStringValue:@"Ready"];
                 }
                 break;
+            }
+        }
+    }
+}
+
+-(void)checkProvisioningSignature {
+    grabCertPubKeyTask = [[NSTask alloc] init];
+    [grabCertPubKeyTask setLaunchPath:@"/usr/bin/security"];
+    [grabCertPubKeyTask setArguments:[NSArray arrayWithObjects:@"find-certificate", @"-a", @"-c", [certComboBox objectValue], @"-p", nil]];
+    
+    [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(verifyProvisioningSignature:) userInfo:nil repeats:TRUE];
+    
+    NSPipe *pipe=[NSPipe pipe];
+    [grabCertPubKeyTask setStandardOutput:pipe];
+    [grabCertPubKeyTask setStandardError:pipe];
+    NSFileHandle *handle = [pipe fileHandleForReading];
+    
+    [grabCertPubKeyTask launch];
+    
+    [NSThread detachNewThreadSelector:@selector(watchCheckProvisioningSignature:)
+                             toTarget:self withObject:handle];
+}
+
+- (void)watchCheckProvisioningSignature:(NSFileHandle*)streamHandle {
+    @autoreleasepool {
+        certPubKey = [[NSString alloc] initWithData:[streamHandle readDataToEndOfFile] encoding:NSASCIIStringEncoding];
+    }
+}
+
+- (void)verifyProvisioningSignature:(NSTimer *)timer {
+    if ([provisioningTask isRunning] == 0) {
+        [timer invalidate];
+        grabCertPubKeyTask = nil;
+        appPath = nil;
+        
+        NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[workingPath stringByAppendingPathComponent:kPayloadDirName] error:nil];
+        
+        for (NSString *file in dirContents) {
+            if ([[[file pathExtension] lowercaseString] isEqualToString:@"app"]) {
+                appPath = [[workingPath stringByAppendingPathComponent:kPayloadDirName] stringByAppendingPathComponent:file];
+                if ([[NSFileManager defaultManager] fileExistsAtPath:[appPath stringByAppendingPathComponent:@"embedded.mobileprovision"]]) {
+                    
+                    BOOL provisioningSignatureOK = FALSE;
+                    
+                    NSString *embeddedProvisioning = [NSString stringWithContentsOfFile:[appPath stringByAppendingPathComponent:@"embedded.mobileprovision"] encoding:NSASCIIStringEncoding error:nil];
+                    NSArray* embeddedProvisioningLines = [embeddedProvisioning componentsSeparatedByCharactersInSet:
+                                                          [NSCharacterSet newlineCharacterSet]];
+                    
+                    for (int i = 0; i < [embeddedProvisioningLines count]; i++) {
+                        if ([[embeddedProvisioningLines objectAtIndex:i] rangeOfString:@"DeveloperCertificates"].location != NSNotFound) {
+                            
+                            i+=2;
+                            while ([[embeddedProvisioningLines objectAtIndex:i] rangeOfString:@"data"].location != NSNotFound) {
+                                
+                                NSInteger fromPosition = [[embeddedProvisioningLines objectAtIndex:i] rangeOfString:@"<data>"].location + 6;
+                                NSInteger toPosition = [[embeddedProvisioningLines objectAtIndex:i] rangeOfString:@"</data>"].location;
+                                NSRange range;
+                                range.location = fromPosition;
+                                range.length = toPosition-fromPosition;
+                                
+                                NSString *mpPubKey = [[embeddedProvisioningLines objectAtIndex:i] substringWithRange:range];
+                                mpPubKey = [NSString stringWithFormat:@"-----BEGIN CERTIFICATE-----%@-----END CERTIFICATE-----", mpPubKey];
+                                mpPubKey = [mpPubKey stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                                mpPubKey = [mpPubKey stringByReplacingOccurrencesOfString:@"\t" withString:@""];
+    
+                                certPubKey = [certPubKey stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                                certPubKey = [certPubKey stringByReplacingOccurrencesOfString:@"\t" withString:@""];
+                                
+                                if ([mpPubKey isEqualToString:certPubKey]) {
+                                    provisioningSignatureOK = true;
+                                    break;
+                                }
+                                i++;
+                            }
+                            break;
+                        }
+                    }
+                    
+                    if (provisioningSignatureOK) {
+                        NSLog(@"Provisioning signature validation completed.");
+                        [statusLabel setStringValue:@"Provisioning signature validation completed"];
+                        [self doEntitlementsFixing];
+                    } else {
+                        [self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"Provisioning signature validation failed"];
+                        [self enableControls];
+                        [statusLabel setStringValue:@"Ready"];
+                    }
+                }
             }
         }
     }
