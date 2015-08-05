@@ -446,7 +446,8 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
                 hasFrameworks = YES;
                 NSArray *frameworksContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:frameworksDirPath error:nil];
                 for (NSString *frameworkFile in frameworksContents) {
-                    if ([[[frameworkFile pathExtension] lowercaseString] isEqualTo:@"framework"]) {
+                    NSString *extension = [[frameworkFile pathExtension] lowercaseString];
+                    if ([extension isEqualTo:@"framework"] || [extension isEqualTo:@"dylib"]) {
                         frameworkPath = [frameworksDirPath stringByAppendingPathComponent:frameworkFile];
                         NSLog(@"Found %@",frameworkPath);
                         [frameworks addObject:frameworkPath];
