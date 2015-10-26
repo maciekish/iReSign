@@ -23,7 +23,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 
 @implementation iReSignAppDelegate
 
-@synthesize window,workingPath;
+@synthesize window;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
@@ -66,21 +66,25 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     verificationResult = nil;
     
     sourcePath = [pathField stringValue];
+    entitlementsFilePath = [entitlementField stringValue];
     workingPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"com.appulize.iresign"];
+    entitlementsDirPath = [workingPath stringByAppendingString:@"-entitlements"];
     
     if ([certComboBox objectValue]) {
         if (([[[sourcePath pathExtension] lowercaseString] isEqualToString:@"ipa"]) ||
             ([[[sourcePath pathExtension] lowercaseString] isEqualToString:@"xcarchive"])) {
             [self disableControls];
             
-            NSLog(@"Setting up working directory in %@",workingPath);
+            NSLog(@"Setting up working directory in [%@], and entitlements work directory in [%@]",workingPath, entitlementsDirPath);
             [statusLabel setHidden:NO];
-            [statusLabel setStringValue:@"Setting up working directory"];
+            [statusLabel setStringValue:@"Setting up working directories"];
             
             [[NSFileManager defaultManager] removeItemAtPath:workingPath error:nil];
-            
             [[NSFileManager defaultManager] createDirectoryAtPath:workingPath withIntermediateDirectories:TRUE attributes:nil error:nil];
-            
+
+            [[NSFileManager defaultManager] removeItemAtPath:entitlementsDirPath error:nil];
+            [[NSFileManager defaultManager] createDirectoryAtPath:entitlementsDirPath withIntermediateDirectories:TRUE attributes:nil error:nil];
+
             if ([[[sourcePath pathExtension] lowercaseString] isEqualToString:@"ipa"]) {
                 if (sourcePath && [sourcePath length] > 0) {
                     NSLog(@"Unzipping %@",sourcePath);
@@ -338,7 +342,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
                     
                     NSLog(@"Mobileprovision identifier: %@",identifierInProvisioning);
                     
-                    NSDictionary *infoplist = [NSDictionary dictionaryWithContentsOfFile:[appPath stringByAppendingPathComponent:@"Info.plist"]];
+                    NSDictionary *infoplist = [NSDictionary dictionaryWithContentsOfFile:[appPath stringByAppendingPathComponent:kInfoPlistFilename]];
                     if ([identifierInProvisioning isEqualTo:[infoplist objectForKey:kKeyBundleIDPlistApp]]) {
                         NSLog(@"Identifiers match");
                         identifierOK = TRUE;
@@ -366,12 +370,13 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 
 - (void)doEntitlementsFixing
 {
-    if (![entitlementField.stringValue isEqualToString:@""] || [provisioningPathField.stringValue isEqualToString:@""]) {
+    if (![entitlementsFilePath isEqualToString:@""] || [provisioningPathField.stringValue isEqualToString:@""]) {
         [self doCodeSigning];
         return; // Using a pre-made entitlements file or we're not re-provisioning.
     }
     
     [statusLabel setStringValue:@"Generating entitlements"];
+    NSLog(@"Generating entitlements");
 
     if (appPath) {
         generateEntitlementsTask = [[NSTask alloc] init];
@@ -413,7 +418,8 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 {
     NSDictionary* entitlements = entitlementsResult.propertyList;
     entitlements = entitlements[@"Entitlements"];
-    NSString* filePath = [workingPath stringByAppendingPathComponent:@"entitlements.plist"];
+    NSString* filePath = [entitlementsDirPath stringByAppendingPathComponent:@"entitlements.plist"];
+    NSLog(@"entitlementsDirPath %@, filePath %@", entitlementsDirPath, filePath);
     NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:entitlements format:NSPropertyListXMLFormat_v1_0 options:kCFPropertyListImmutable error:nil];
     if(![xmlData writeToFile:filePath atomically:YES]) {
         NSLog(@"Error writing entitlements file.");
@@ -422,7 +428,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
         [statusLabel setStringValue:@"Ready"];
     }
     else {
-        entitlementField.stringValue = filePath;
+        entitlementsFilePath = filePath;
         [self doCodeSigning];
     }
 }
@@ -430,11 +436,11 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 - (void)doCodeSigning {
     appPath = nil;
     frameworksDirPath = nil;
-    hasFrameworks = NO;
-    frameworks = [[NSMutableArray alloc] init];
-    
+    additionalToSign = NO;
+    additionalResourcesToSign = [[NSMutableArray alloc] init];
+
     NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[workingPath stringByAppendingPathComponent:kPayloadDirName] error:nil];
-    
+
     for (NSString *file in dirContents) {
         if ([[[file pathExtension] lowercaseString] isEqualToString:@"app"]) {
             appPath = [[workingPath stringByAppendingPathComponent:kPayloadDirName] stringByAppendingPathComponent:file];
@@ -443,14 +449,14 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
             appName = file;
             if ([[NSFileManager defaultManager] fileExistsAtPath:frameworksDirPath]) {
                 NSLog(@"Found %@",frameworksDirPath);
-                hasFrameworks = YES;
+                additionalToSign = YES;
                 NSArray *frameworksContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:frameworksDirPath error:nil];
                 for (NSString *frameworkFile in frameworksContents) {
                     NSString *extension = [[frameworkFile pathExtension] lowercaseString];
                     if ([extension isEqualTo:@"framework"] || [extension isEqualTo:@"dylib"]) {
                         frameworkPath = [frameworksDirPath stringByAppendingPathComponent:frameworkFile];
                         NSLog(@"Found %@",frameworkPath);
-                        [frameworks addObject:frameworkPath];
+                        [additionalResourcesToSign addObject:frameworkPath];
                     }
                 }
             }
@@ -458,11 +464,29 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
             break;
         }
     }
-    
+
+    //Sign plugins and other executables except the main one
+    NSString *dir = appPath;
+    NSDirectoryEnumerator *dirEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:dir];
+
+    for (NSString *file in dirEnumerator) {
+        if ([[file lastPathComponent] isEqualToString:kInfoPlistFilename] && [[[file stringByDeletingLastPathComponent] stringByTrimmingCharactersInSet:
+                                                                                                  [NSCharacterSet whitespaceCharacterSet]] length] > 0) {
+            NSString* InfoPlistPath = [appPath stringByAppendingPathComponent: file];
+            NSDictionary *infoDict = [NSDictionary dictionaryWithContentsOfFile:InfoPlistPath];
+            if ([infoDict objectForKey:@"CFBundleExecutable"] != nil) {
+                additionalToSign = YES;
+                NSString* dirToSign = [InfoPlistPath stringByDeletingLastPathComponent];
+                NSLog(@"Found %@", dirToSign);
+                [additionalResourcesToSign addObject:dirToSign];
+            }
+        }
+    }
+
     if (appPath) {
-        if (hasFrameworks) {
-            [self signFile:[frameworks lastObject]];
-            [frameworks removeLastObject];
+        if (additionalToSign) {
+            [self signFile:[additionalResourcesToSign lastObject]];
+            [additionalResourcesToSign removeLastObject];
         } else {
             [self signFile:appPath];
         }
@@ -472,7 +496,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 - (void)signFile:(NSString*)filePath {
     NSLog(@"Codesigning %@", filePath);
     [statusLabel setStringValue:[NSString stringWithFormat:@"Codesigning %@",filePath]];
-    
+
     NSMutableArray *arguments = [NSMutableArray arrayWithObjects:@"-fs", [certComboBox objectValue], nil];
     NSDictionary *systemVersionDictionary = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
     NSString * systemVersion = [systemVersionDictionary objectForKey:@"ProductVersion"];
@@ -496,18 +520,21 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
          To ensure it is ignored, remove the resource key from the Info.plist file.
          */
         
-        NSString *infoPath = [NSString stringWithFormat:@"%@/Info.plist", filePath];
+        NSString *infoPath = [NSString stringWithFormat:@"%@/%@", filePath, kInfoPlistFilename];
         NSMutableDictionary *infoDict = [NSMutableDictionary dictionaryWithContentsOfFile:infoPath];
         [infoDict removeObjectForKey:@"CFBundleResourceSpecification"];
         [infoDict writeToFile:infoPath atomically:YES];
         [arguments addObject:@"--no-strict"]; // http://stackoverflow.com/a/26204757
     }
     
-    if (![[entitlementField stringValue] isEqualToString:@""]) {
-        [arguments addObject:[NSString stringWithFormat:@"--entitlements=%@", [entitlementField stringValue]]];
+    if (![entitlementsFilePath isEqualToString:@""]) {
+        NSLog(@"Signing with entitlements file: %@",  entitlementsFilePath);
+        [arguments addObject:[NSString stringWithFormat:@"--entitlements=%@", entitlementsFilePath]];
     }
     
     [arguments addObjectsFromArray:[NSArray arrayWithObjects:filePath, nil]];
+
+    NSLog(@"Signing arguments = %@", arguments);
     
     codesignTask = [[NSTask alloc] init];
     [codesignTask setLaunchPath:@"/usr/bin/codesign"];
@@ -539,11 +566,11 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     if ([codesignTask isRunning] == 0) {
         [timer invalidate];
         codesignTask = nil;
-        if (frameworks.count > 0) {
-            [self signFile:[frameworks lastObject]];
-            [frameworks removeLastObject];
-        } else if (hasFrameworks) {
-            hasFrameworks = NO;
+        if (additionalResourcesToSign.count > 0) {
+            [self signFile:[additionalResourcesToSign lastObject]];
+            [additionalResourcesToSign removeLastObject];
+        } else if (additionalToSign) {
+            additionalToSign = NO;
             [self signFile:appPath];
         } else {
             NSLog(@"Codesigning done");
