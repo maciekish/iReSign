@@ -20,6 +20,10 @@ static NSString *kPayloadDirName                    = @"Payload";
 static NSString *kProductsDirName                   = @"Products";
 static NSString *kInfoPlistFilename                 = @"Info.plist";
 static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
+static NSString *kKeyCFBundleURLTypes               = @"CFBundleURLTypes";
+static NSString *kKeyCFBundleURLName                = @"CFBundleURLName";
+static NSString *kKeyCFBundleURLSchemes             = @"CFBundleURLSchemes";
+
 
 @implementation iReSignAppDelegate
 
@@ -251,7 +255,36 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     
     if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
         plist = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+        NSString *orgBundleID = plist[bundleIDKey];
         [plist setObject:newBundleID forKey:bundleIDKey];
+        
+        if (plist[kKeyCFBundleURLTypes]!=nil) {
+            NSMutableArray *cfBundleURLTypes = [NSMutableArray arrayWithArray:plist[kKeyCFBundleURLTypes]];
+            for(int j=0; j<cfBundleURLTypes.count; j++) {
+                NSObject *object = cfBundleURLTypes[j];
+                if ([object isKindOfClass:[NSDictionary class]]) {
+                    NSMutableDictionary *d = [NSMutableDictionary dictionaryWithDictionary:(NSDictionary*)object];
+                    NSObject *object1 = d[kKeyCFBundleURLName];
+                    if (object1!=nil && [object1 isKindOfClass:[NSString class]] && [((NSString*)object1) isEqualToString:orgBundleID]) {
+                        [d setObject:newBundleID forKey:kKeyCFBundleURLName];
+                    }
+                    NSObject *object2 = d[kKeyCFBundleURLSchemes];
+                    if (object2!=nil && [object2 isKindOfClass:[NSArray class]]) {
+                        NSString *orgAcBundleID = [NSString stringWithFormat:@"ac%@",orgBundleID];
+                        NSMutableArray *cfBundleURLSchemes = [NSMutableArray arrayWithArray:(NSArray*)object2];
+                        for(int i=0; i<cfBundleURLSchemes.count; i++) {
+                            NSObject *object3 = cfBundleURLSchemes[i];
+                            if ([object3 isKindOfClass:[NSString class]] && [((NSString*)object3) isEqualToString:orgAcBundleID]) {
+                                cfBundleURLSchemes[i] = [NSString stringWithFormat:@"ac%@",newBundleID];
+                            }
+                        }
+                        [d setObject:cfBundleURLSchemes forKey:kKeyCFBundleURLSchemes];
+                    }
+                    cfBundleURLTypes[j] = d;
+                }
+            }
+            [plist setObject:cfBundleURLTypes forKey:kKeyCFBundleURLTypes];
+        }
         
         NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:plist format:options options:kCFPropertyListImmutable error:nil];
         
