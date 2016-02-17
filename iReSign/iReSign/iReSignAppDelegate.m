@@ -21,6 +21,13 @@ static NSString *kProductsDirName                   = @"Products";
 static NSString *kInfoPlistFilename                 = @"Info.plist";
 static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 
+
+@interface iReSignAppDelegate()
+@property (nonatomic , strong) NSDictionary* signinigCerts;
+@end
+
+
+
 @implementation iReSignAppDelegate
 
 @synthesize window,workingPath;
@@ -372,22 +379,22 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     }
     
     [statusLabel setStringValue:@"Generating entitlements"];
-
+    
     if (appPath) {
         generateEntitlementsTask = [[NSTask alloc] init];
         [generateEntitlementsTask setLaunchPath:@"/usr/bin/security"];
         [generateEntitlementsTask setArguments:@[@"cms", @"-D", @"-i", provisioningPathField.stringValue]];
         [generateEntitlementsTask setCurrentDirectoryPath:workingPath];
-
+        
         [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkEntitlementsFix:) userInfo:nil repeats:TRUE];
-
+        
         NSPipe *pipe=[NSPipe pipe];
         [generateEntitlementsTask setStandardOutput:pipe];
         [generateEntitlementsTask setStandardError:pipe];
         NSFileHandle *handle = [pipe fileHandleForReading];
-
+        
         [generateEntitlementsTask launch];
-
+        
         [NSThread detachNewThreadSelector:@selector(watchEntitlements:)
                                  toTarget:self withObject:handle];
     }
@@ -473,7 +480,9 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     NSLog(@"Codesigning %@", filePath);
     [statusLabel setStringValue:[NSString stringWithFormat:@"Codesigning %@",filePath]];
     
-    NSMutableArray *arguments = [NSMutableArray arrayWithObjects:@"-fs", [certComboBox objectValue], nil];
+    NSString* certHash = [self.signinigCerts objectForKey:[certComboBox objectValue]] ? [self.signinigCerts objectForKey:[certComboBox objectValue]] :  [certComboBox objectValue];
+    
+    NSMutableArray *arguments = [NSMutableArray arrayWithObjects:@"-fs", certHash, nil];
     NSDictionary *systemVersionDictionary = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
     NSString * systemVersion = [systemVersionDictionary objectForKey:@"ProductVersion"];
     NSArray * version = [systemVersion componentsSeparatedByString:@"."];
@@ -558,7 +567,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
         verifyTask = [[NSTask alloc] init];
         [verifyTask setLaunchPath:@"/usr/bin/codesign"];
         [verifyTask setArguments:[NSArray arrayWithObjects:@"-v", appPath, nil]];
-		
+        
         [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkVerificationProcess:) userInfo:nil repeats:TRUE];
         
         NSLog(@"Verifying %@",appPath);
@@ -623,7 +632,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
         [zipTask setLaunchPath:@"/usr/bin/zip"];
         [zipTask setCurrentDirectoryPath:workingPath];
         [zipTask setArguments:[NSArray arrayWithObjects:@"-qry", destinationPath, @".", nil]];
-		
+        
         [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkZip:) userInfo:nil repeats:TRUE];
         
         NSLog(@"Zipping %@", destinationPath);
@@ -784,20 +793,28 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
             // Nothing in the result, return
             return;
         }
-        NSArray *rawResult = [securityResult componentsSeparatedByString:@"\""];
-        NSMutableArray *tempGetCertsResult = [NSMutableArray arrayWithCapacity:20];
-        for (int i = 0; i <= [rawResult count] - 2; i+=2) {
+        NSArray *rawResult = [securityResult componentsSeparatedByString:@"\n"];
+        NSMutableDictionary *tempGetCertsResult = [NSMutableDictionary dictionaryWithCapacity:20];
+        NSMutableArray *tempGetCertsResultNames = [NSMutableArray arrayWithCapacity:20];
+        for (int i = 0; i < [rawResult count] - 2; i++) {
+            if(!rawResult || [[rawResult objectAtIndex:i]  isEqualToString:@""]) continue;
             
-            NSLog(@"i:%d", i+1);
-            if (rawResult.count - 1 < i + 1) {
+            NSArray *row = [[[rawResult objectAtIndex:i] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] componentsSeparatedByString:@" "];
+            if (row.count  < 3)
+            {
                 // Invalid array, don't add an object to that position
             } else {
                 // Valid object
-                [tempGetCertsResult addObject:[rawResult objectAtIndex:i+1]];
+                
+                NSString* name = [[[rawResult objectAtIndex:i] componentsSeparatedByString:@"\""] objectAtIndex:1];
+                [tempGetCertsResult setObject:[row objectAtIndex:1] forKey:name];
+                [tempGetCertsResultNames addObject:name];
             }
         }
         
-        certComboBoxItems = [NSMutableArray arrayWithArray:tempGetCertsResult];
+        
+        self.signinigCerts = tempGetCertsResult;
+        certComboBoxItems = [NSMutableArray arrayWithArray:tempGetCertsResultNames];
         
         [certComboBox reloadData];
         
@@ -859,3 +876,6 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 }
 
 @end
+
+
+
