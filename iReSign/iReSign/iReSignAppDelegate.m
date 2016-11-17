@@ -20,6 +20,15 @@ static NSString *kPayloadDirName                    = @"Payload";
 static NSString *kProductsDirName                   = @"Products";
 static NSString *kInfoPlistFilename                 = @"Info.plist";
 static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
+static NSString *kKeyCFBundleURLTypes               = @"CFBundleURLTypes";
+static NSString *kKeyCFBundleURLName                = @"CFBundleURLName";
+static NSString *kKeyCFBundleURLSchemes             = @"CFBundleURLSchemes";
+
+@interface iReSignAppDelegate()
+
+@property (nonatomic , strong) NSDictionary* signinigCerts;
+
+@end
 
 @implementation iReSignAppDelegate
 
@@ -251,7 +260,36 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     
     if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
         plist = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+        NSString *orgBundleID = plist[bundleIDKey];
         [plist setObject:newBundleID forKey:bundleIDKey];
+        
+        if (plist[kKeyCFBundleURLTypes] != nil) {
+            NSMutableArray *cfBundleURLTypes = [NSMutableArray arrayWithArray:plist[kKeyCFBundleURLTypes]];
+            for (int j = 0; j < cfBundleURLTypes.count; j++) {
+                NSObject *object = cfBundleURLTypes[j];
+                if ([object isKindOfClass:[NSDictionary class]]) {
+                    NSMutableDictionary *d = [NSMutableDictionary dictionaryWithDictionary:(NSDictionary*)object];
+                    NSObject *object1 = d[kKeyCFBundleURLName];
+                    if (object1 != nil && [object1 isKindOfClass:[NSString class]] && [((NSString*)object1) isEqualToString:orgBundleID]) {
+                        [d setObject:newBundleID forKey:kKeyCFBundleURLName];
+                    }
+                    NSObject *object2 = d[kKeyCFBundleURLSchemes];
+                    if (object2!=nil && [object2 isKindOfClass:[NSArray class]]) {
+                        NSString *orgAcBundleID = [NSString stringWithFormat:@"ac%@",orgBundleID];
+                        NSMutableArray *cfBundleURLSchemes = [NSMutableArray arrayWithArray:(NSArray*)object2];
+                        for(int i = 0; i < cfBundleURLSchemes.count; i++) {
+                            NSObject *object3 = cfBundleURLSchemes[i];
+                            if ([object3 isKindOfClass:[NSString class]] && [((NSString*)object3) isEqualToString:orgAcBundleID]) {
+                                cfBundleURLSchemes[i] = [NSString stringWithFormat:@"ac%@", newBundleID];
+                            }
+                        }
+                        [d setObject:cfBundleURLSchemes forKey:kKeyCFBundleURLSchemes];
+                    }
+                    cfBundleURLTypes[j] = d;
+                }
+            }
+            [plist setObject:cfBundleURLTypes forKey:kKeyCFBundleURLTypes];
+        }
         
         NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:plist format:options options:kCFPropertyListImmutable error:nil];
         
@@ -411,6 +449,15 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 
 - (void)doEntitlementsEdit
 {
+    // macOS 10.12 bug: /usr/bin/security appends a junk line at the top of the XML file.
+    if ([entitlementsResult containsString:@"SecPolicySetValue"]) {
+        NSRange newlineRange = [entitlementsResult rangeOfString:@"\n"];
+        if (newlineRange.location != NSNotFound) {
+            entitlementsResult = [entitlementsResult substringFromIndex:newlineRange.location];
+        }
+    }
+    // end macOS 10.12 bug fix.
+    
     NSDictionary* entitlements = entitlementsResult.propertyList;
     entitlements = entitlements[@"Entitlements"];
     NSString* filePath = [workingPath stringByAppendingPathComponent:@"entitlements.plist"];
@@ -461,8 +508,10 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     
     if (appPath) {
         if (hasFrameworks) {
-            [self signFile:[frameworks lastObject]];
-            [frameworks removeLastObject];
+            for (NSString *framework in frameworks) {
+                [self signFile:framework];
+            }
+            [frameworks removeAllObjects];
         } else {
             [self signFile:appPath];
         }
@@ -473,7 +522,10 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     NSLog(@"Codesigning %@", filePath);
     [statusLabel setStringValue:[NSString stringWithFormat:@"Codesigning %@",filePath]];
     
-    NSMutableArray *arguments = [NSMutableArray arrayWithObjects:@"-fs", [certComboBox objectValue], nil];
+    NSString *certHash = [self.signinigCerts objectForKey:[certComboBox objectValue]] ? [self.signinigCerts objectForKey:[certComboBox objectValue]] :  [certComboBox objectValue];
+    
+    NSMutableArray *arguments = [NSMutableArray arrayWithObjects:@"-fs", certHash, nil];
+    
     NSDictionary *systemVersionDictionary = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
     NSString * systemVersion = [systemVersionDictionary objectForKey:@"ProductVersion"];
     NSArray * version = [systemVersion componentsSeparatedByString:@"."];
@@ -497,10 +549,12 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
          */
         
         NSString *infoPath = [NSString stringWithFormat:@"%@/Info.plist", filePath];
-        NSMutableDictionary *infoDict = [NSMutableDictionary dictionaryWithContentsOfFile:infoPath];
-        [infoDict removeObjectForKey:@"CFBundleResourceSpecification"];
-        [infoDict writeToFile:infoPath atomically:YES];
-        [arguments addObject:@"--no-strict"]; // http://stackoverflow.com/a/26204757
+        if ([[NSFileManager defaultManager] fileExistsAtPath:infoPath]) {
+            NSMutableDictionary *infoDict = [NSMutableDictionary dictionaryWithContentsOfFile:infoPath];
+            [infoDict removeObjectForKey:@"CFBundleResourceSpecification"];
+            [infoDict writeToFile:infoPath atomically:YES];
+            [arguments addObject:@"--no-strict"]; // http://stackoverflow.com/a/26204757
+        }
     }
     
     if (![[entitlementField stringValue] isEqualToString:@""]) {
@@ -540,8 +594,10 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
         [timer invalidate];
         codesignTask = nil;
         if (frameworks.count > 0) {
-            [self signFile:[frameworks lastObject]];
-            [frameworks removeLastObject];
+            for (NSString *framework in frameworks) {
+                [self signFile:framework];
+            }
+            [frameworks removeAllObjects];
         } else if (hasFrameworks) {
             hasFrameworks = NO;
             [self signFile:appPath];
@@ -778,26 +834,32 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 - (void)watchGetCerts:(NSFileHandle*)streamHandle {
     @autoreleasepool {
         
-        NSString *securityResult = [[NSString alloc] initWithData:[streamHandle readDataToEndOfFile] encoding:NSASCIIStringEncoding];
+        NSString *securityResult = [[NSString alloc] initWithData:[streamHandle readDataToEndOfFile] encoding:NSUTF8StringEncoding];
         // Verify the security result
         if (securityResult == nil || securityResult.length < 1) {
             // Nothing in the result, return
             return;
         }
-        NSArray *rawResult = [securityResult componentsSeparatedByString:@"\""];
-        NSMutableArray *tempGetCertsResult = [NSMutableArray arrayWithCapacity:20];
-        for (int i = 0; i <= [rawResult count] - 2; i+=2) {
-            
-            NSLog(@"i:%d", i+1);
-            if (rawResult.count - 1 < i + 1) {
+        NSArray *rawResult = [securityResult componentsSeparatedByString:@"\n"];
+        NSMutableDictionary *tempGetCertsResult = [NSMutableDictionary dictionaryWithCapacity:20];
+        NSMutableArray *tempGetCertsResultNames = [NSMutableArray arrayWithCapacity:20];
+        for (int i = 0; i < [rawResult count] - 2; i++) {
+            if(!rawResult || [[rawResult objectAtIndex:i]  isEqualToString:@""]) continue;
+    
+            NSArray *row = [[[rawResult objectAtIndex:i] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] componentsSeparatedByString:@" "];
+            if (row.count  < 3)
+            {
                 // Invalid array, don't add an object to that position
             } else {
                 // Valid object
-                [tempGetCertsResult addObject:[rawResult objectAtIndex:i+1]];
+                NSString *name = [[[rawResult objectAtIndex:i] componentsSeparatedByString:@"\""] objectAtIndex:1];
+                [tempGetCertsResult setObject:[row objectAtIndex:1] forKey:name];
+                [tempGetCertsResultNames addObject:name];
             }
         }
         
-        certComboBoxItems = [NSMutableArray arrayWithArray:tempGetCertsResult];
+        self.signinigCerts = tempGetCertsResult;
+        certComboBoxItems = [NSMutableArray arrayWithArray:tempGetCertsResultNames];
         
         [certComboBox reloadData];
         
