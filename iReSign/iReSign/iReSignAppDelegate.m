@@ -10,9 +10,15 @@
 #import "iReSignAppDelegate.h"
 
 static NSString *kKeyPrefsBundleIDChange            = @"keyBundleIDChange";
+static NSString *kKeyPrefsBuildNumberchange         = @"keyBunildNumberChange";
+static NSString *kKeyPrefsVersionNumberChange       = @"keyVersionNumberChange";
 
 static NSString *kKeyBundleIDPlistApp               = @"CFBundleIdentifier";
+static NSString *kKeyVersionNumberPlistApp          = @"CFBundleShortVersionString";
+static NSString *kKeyBuildNumberPlistApp            = @"CFBundleVersion";
 static NSString *kKeyBundleIDPlistiTunesArtwork     = @"softwareVersionBundleId";
+static NSString *kKeyVersionNumberPlistiTunesArtwork = @"bundleShortVersionString";
+static NSString *kKeyBuildNumberPlistiTunesArtwork  = @"bundleVersion";
 static NSString *kKeyInfoPlistApplicationProperties = @"ApplicationProperties";
 static NSString *kKeyInfoPlistApplicationPath       = @"ApplicationPath";
 static NSString *kFrameworksDirName                 = @"Frameworks";
@@ -20,6 +26,8 @@ static NSString *kPayloadDirName                    = @"Payload";
 static NSString *kProductsDirName                   = @"Products";
 static NSString *kInfoPlistFilename                 = @"Info.plist";
 static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
+static NSString *kKeyBuildNumber                    = @"CFBuildNumber";
+static NSString *kKeyVersionNumber                  = @"VersionNumber";
 static NSString *kKeyCFBundleURLTypes               = @"CFBundleURLTypes";
 static NSString *kKeyCFBundleURLName                = @"CFBundleURLName";
 static NSString *kKeyCFBundleURLSchemes             = @"CFBundleURLSchemes";
@@ -180,6 +188,14 @@ static NSString *kKeyCFBundleURLSchemes             = @"CFBundleURLSchemes";
                 [self doBundleIDChange:bundleIDField.stringValue];
             }
             
+            if (changeBuildNumberCheckBox.state == NSOnState) {
+                [self doBuildNumber:buildNumberField.stringValue];
+            }
+            
+            if (changeVersionNumberCheckBox.state == NSOnState) {
+                [self doVersionNumber:versionumberField.stringValue];
+            }
+            
             if ([[provisioningPathField stringValue] isEqualTo:@""]) {
                 [self doCodeSigning];
             } else {
@@ -203,6 +219,14 @@ static NSString *kKeyCFBundleURLSchemes             = @"CFBundleURLSchemes";
         
         if (changeBundleIDCheckbox.state == NSOnState) {
             [self doBundleIDChange:bundleIDField.stringValue];
+        }
+        
+        if (changeBuildNumberCheckBox.state == NSOnState) {
+            [self doBuildNumber:buildNumberField.stringValue];
+        }
+
+        if (changeVersionNumberCheckBox.state == NSOnState) {
+            [self doVersionNumber:versionumberField.stringValue];
         }
         
         if ([[provisioningPathField stringValue] isEqualTo:@""]) {
@@ -300,6 +324,110 @@ static NSString *kKeyCFBundleURLSchemes             = @"CFBundleURLSchemes";
     return NO;
 }
 
+- (BOOL)doBuildNumber:(NSString *)newBuildNumber {
+    BOOL success = YES;
+    
+    success &= [self doAppBuildNumber:newBuildNumber];
+    success &= [self doITunesMetadataBuildNumberChange:newBuildNumber];
+    
+    return success;
+}
+
+- (BOOL)doITunesMetadataBuildNumberChange:(NSString *)newBuildNumber {
+    NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:workingPath error:nil];
+    NSString *infoPlistPath = nil;
+    
+    for (NSString *file in dirContents) {
+        if ([[[file pathExtension] lowercaseString] isEqualToString:@"plist"]) {
+            infoPlistPath = [workingPath stringByAppendingPathComponent:file];
+            break;
+        }
+    }
+    
+    return [self changeBuildNumberForFile:infoPlistPath buildNumberIDKey:kKeyBuildNumberPlistiTunesArtwork newBuildNumber:newBuildNumber plistOutOptions:NSPropertyListXMLFormat_v1_0];
+}
+
+- (BOOL)doAppBuildNumber:(NSString *)newBuildNumber {
+    NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[workingPath stringByAppendingPathComponent:kPayloadDirName] error:nil];
+    NSString *infoPlistPath = nil;
+    
+    for (NSString *file in dirContents) {
+        if ([[[file pathExtension] lowercaseString] isEqualToString:@"app"]) {
+            infoPlistPath = [[[workingPath stringByAppendingPathComponent:kPayloadDirName]
+                              stringByAppendingPathComponent:file]
+                             stringByAppendingPathComponent:kInfoPlistFilename];
+            break;
+        }
+    }
+    
+    return [self changeBuildNumberForFile:infoPlistPath buildNumberIDKey:kKeyBuildNumberPlistApp newBuildNumber:newBuildNumber plistOutOptions:NSPropertyListBinaryFormat_v1_0];
+}
+
+- (BOOL)changeBuildNumberForFile:(NSString *)filePath buildNumberIDKey:(NSString *)buildNumberIDKey newBuildNumber:(NSString *)newBuildNumber plistOutOptions:(NSPropertyListWriteOptions)options {
+    
+    NSMutableDictionary *plist = nil;
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+        plist = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+        [plist setObject:newBuildNumber forKey:buildNumberIDKey];
+        
+        NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:plist format:options options:kCFPropertyListImmutable error:nil];
+        
+        return [xmlData writeToFile:filePath atomically:YES];
+    }
+    
+    return NO;
+}
+
+- (BOOL)doVersionNumber:(NSString *)newVersionNumber {
+    BOOL success = YES;
+    
+    success &= [self doAppVersionNumber:newVersionNumber];
+    success &= [self doITunesMetadataVersionNumberChange:newVersionNumber];
+    
+    return success;
+}
+
+- (BOOL)doITunesMetadataVersionNumberChange:(NSString *)newVersionNumber {
+    NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:workingPath error:nil];
+    NSString *infoPlistPath = nil;
+    
+    for (NSString *file in dirContents) {
+        if ([[[file pathExtension] lowercaseString] isEqualToString:@"plist"]) {
+            infoPlistPath = [workingPath stringByAppendingPathComponent:file];
+            break;
+        }
+    }
+    
+    return [self changeVersionNumberForFile:infoPlistPath versionNumberIDKey:kKeyVersionNumberPlistiTunesArtwork newVersionNumber:newVersionNumber plistOutOptions:NSPropertyListXMLFormat_v1_0];
+}
+
+- (BOOL)doAppVersionNumber:(NSString *)newVersionNumber {
+    NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[workingPath stringByAppendingPathComponent:kPayloadDirName] error:nil];
+    NSString *infoPlistPath = nil;
+    
+    for (NSString *file in dirContents) {
+        if ([[[file pathExtension] lowercaseString] isEqualToString:@"app"]) {
+            infoPlistPath = [[[workingPath stringByAppendingPathComponent:kPayloadDirName]
+                              stringByAppendingPathComponent:file]
+                             stringByAppendingPathComponent:kInfoPlistFilename];
+            break;
+        }
+    }
+    
+    return [self changeVersionNumberForFile:infoPlistPath versionNumberIDKey:kKeyVersionNumberPlistApp newVersionNumber:newVersionNumber plistOutOptions:NSPropertyListBinaryFormat_v1_0];
+}
+
+- (BOOL)changeVersionNumberForFile:(NSString *)filePath versionNumberIDKey:(NSString *)versionNumberIDKey newVersionNumber:(NSString *)newVersionNumber plistOutOptions:(NSPropertyListWriteOptions)options {
+    NSMutableDictionary *plist = nil;
+    if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+        plist = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+        [plist setObject:newVersionNumber forKey:versionNumberIDKey];
+        NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:plist format:options options:kCFPropertyListImmutable error:nil];
+        return [xmlData writeToFile:filePath atomically:YES];
+    }
+    return NO;
+}
 
 - (void)doProvisioning {
     NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[workingPath stringByAppendingPathComponent:kPayloadDirName] error:nil];
@@ -760,6 +888,24 @@ static NSString *kKeyCFBundleURLSchemes             = @"CFBundleURLSchemes";
     }
     
     bundleIDField.enabled = changeBundleIDCheckbox.state == NSOnState;
+}
+
+- (IBAction)changeVersionNumberPressed:(id)sender {
+    
+    if (sender != changeVersionNumberCheckBox) {
+        return;
+    }
+    
+    versionumberField.enabled = changeVersionNumberCheckBox.state == NSOnState;
+}
+
+- (IBAction)changeBuildNumberPressed:(id)sender {
+
+    if (sender != changeBuildNumberCheckBox) {
+        return;
+    }
+
+    buildNumberField.enabled = changeBuildNumberCheckBox.state == NSOnState;
 }
 
 - (void)disableControls {
