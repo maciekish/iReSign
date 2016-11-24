@@ -19,6 +19,7 @@
     NSTask *unzipTask;
     NSTask *copyTask;
     NSTask *provisioningTask;
+    NSTask *grabCertPubKeyTask;
     NSTask *codesignTask;
     NSTask *generateEntitlementsTask;
     NSTask *verifyTask;
@@ -30,6 +31,7 @@
     NSString *workingPath;
     NSString *appName;
     NSString *fileName;
+    NSString *certPubKey;
     
     NSString *entitlementsResult;
     NSString *codesigningResult;
