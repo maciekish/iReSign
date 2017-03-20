@@ -411,6 +411,11 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 
 - (void)doEntitlementsEdit
 {
+    NSString *xmlStartStr = @"<?xml";
+    NSRange range = [entitlementsResult rangeOfString:xmlStartStr];
+    if (range.location != NSNotFound) {
+        entitlementsResult = [entitlementsResult substringFromIndex: range.location];
+    }
     NSDictionary* entitlements = entitlementsResult.propertyList;
     entitlements = entitlements[@"Entitlements"];
     NSString* filePath = [workingPath stringByAppendingPathComponent:@"entitlements.plist"];
