@@ -396,6 +396,12 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 - (void)watchEntitlements:(NSFileHandle*)streamHandle {
     @autoreleasepool {
         entitlementsResult = [[NSString alloc] initWithData:[streamHandle readDataToEndOfFile] encoding:NSASCIIStringEncoding];
+        NSString *flag = @"\n";
+        NSUInteger securityLocation = [entitlementsResult rangeOfString:@"security: SecPolicySetValue"].location;
+        if(securityLocation != -1) {
+            NSUInteger flagLocation = [entitlementsResult rangeOfString:flag].location;
+            entitlementsResult = [entitlementsResult substringFromIndex:flagLocation + [flag length]];
+        }
     }
 }
 
