@@ -21,6 +21,8 @@ static NSString *kProductsDirName                   = @"Products";
 static NSString *kInfoPlistFilename                 = @"Info.plist";
 static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 
+static NSString *kKeyBundleVersion                  = @"CFBundleVersion";
+static NSString *kKeyBundleVersionStr               = @"CFBundleShortVersionString";
 @implementation iReSignAppDelegate
 
 @synthesize window,workingPath;
@@ -170,7 +172,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
             if (changeBundleIDCheckbox.state == NSOnState) {
                 [self doBundleIDChange:bundleIDField.stringValue];
             }
-            
+            [self changeBundleVersions];
             if ([[provisioningPathField stringValue] isEqualTo:@""]) {
                 [self doCodeSigning];
             } else {
@@ -243,6 +245,34 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     }
     
     return [self changeBundleIDForFile:infoPlistPath bundleIDKey:kKeyBundleIDPlistApp newBundleID:newBundleID plistOutOptions:NSPropertyListBinaryFormat_v1_0];
+}
+
+- (void) changeBundleVersions{
+    NSString* version = [bundleVersion stringValue];
+    NSString* versionStr = [bundleVersionStr stringValue];
+    if ([version isEqualTo:@""] && [versionStr isEqualTo:@""]){
+        return;
+    }
+    NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[workingPath stringByAppendingPathComponent:kPayloadDirName] error:nil];
+    NSString *infoPlistPath = nil;
+
+    for (NSString *file in dirContents) {
+        if ([[[file pathExtension] lowercaseString] isEqualToString:@"app"]) {
+            infoPlistPath = [[[workingPath stringByAppendingPathComponent:kPayloadDirName]
+                              stringByAppendingPathComponent:file]
+                             stringByAppendingPathComponent:kInfoPlistFilename];
+            break;
+        }
+    }
+    NSMutableDictionary *plist = [[NSMutableDictionary alloc] initWithContentsOfFile:infoPlistPath];
+    if(![version isEqualTo:@""]){
+        [plist setObject:version forKey:kKeyBundleVersion];
+    }
+    if(![versionStr isEqualTo:@""]){
+        [plist setObject:versionStr forKey:kKeyBundleVersionStr];
+    }
+    NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:plist format:NSPropertyListXMLFormat_v1_0 options:kCFPropertyListImmutable error:nil];
+    [xmlData writeToFile:infoPlistPath atomically:YES];
 }
 
 - (BOOL)changeBundleIDForFile:(NSString *)filePath bundleIDKey:(NSString *)bundleIDKey newBundleID:(NSString *)newBundleID plistOutOptions:(NSPropertyListWriteOptions)options {
@@ -612,6 +642,21 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
         
         fileName = [sourcePath lastPathComponent];
         fileName = [fileName substringToIndex:([fileName length] - ([[sourcePath pathExtension] length] + 1))];
+        NSString* version = [bundleVersion stringValue];
+        NSString* versionStr = [bundleVersionStr stringValue];
+        // add bundleID and version to filename
+        if (changeBundleIDCheckbox.state == NSOnState) {
+            NSString* bundleID = [bundleIDField stringValue];
+            if (![bundleID isEqualTo:@""]){
+                fileName = [fileName stringByAppendingFormat:@"-%@",bundleID];
+            }
+        }
+        if (![versionStr isEqualTo:@""]){
+            fileName = [fileName stringByAppendingFormat:@"-v%@",versionStr];
+        }
+        if (![version isEqualTo:@""]){
+            fileName = [fileName stringByAppendingFormat:@"-%@",version];
+        }
         fileName = [fileName stringByAppendingString:@"-resigned"];
         fileName = [fileName stringByAppendingPathExtension:@"ipa"];
         
@@ -719,6 +764,8 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     
     [flurry startAnimation:self];
     [flurry setAlphaValue:1.0];
+    [bundleVersionStr setEnabled:NO];
+    [bundleVersion setEnabled:NO];
 }
 
 - (void)enableControls {
@@ -734,6 +781,9 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     
     [flurry stopAnimation:self];
     [flurry setAlphaValue:0.5];
+    [bundleVersion setEnabled:YES];
+    [bundleVersionStr setEnabled:YES];
+
 }
 
 -(NSInteger)numberOfItemsInComboBox:(NSComboBox *)aComboBox {

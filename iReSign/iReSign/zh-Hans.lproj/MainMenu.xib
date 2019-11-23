@@ -1,8 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="13529" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <deployment defaultVersion="1060" identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13529"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -11,7 +12,7 @@
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
-        <customObject id="-3" userLabel="Application"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <menu title="AMainMenu" systemMenu="main" id="29">
             <items>
                 <menuItem title="iReSign" id="56">
@@ -75,16 +76,16 @@
         </menu>
         <window title="iReSign" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="default" id="371">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
-            <rect key="contentRect" x="0.0" y="405" width="333" height="201"/>
+            <rect key="contentRect" x="0.0" y="405" width="333" height="207"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1028"/>
-            <value key="minSize" type="size" width="333" height="201"/>
+            <value key="minSize" type="size" width="333" height="207"/>
             <value key="maxSize" type="size" width="666" height="402"/>
             <view key="contentView" id="372">
-                <rect key="frame" x="0.0" y="0.0" width="333" height="201"/>
+                <rect key="frame" x="0.0" y="0.0" width="333" height="207"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <textField verticalHuggingPriority="750" id="533" customClass="IRTextFieldDrag">
-                        <rect key="frame" x="20" y="166" width="208" height="22"/>
+                        <rect key="frame" x="20" y="172" width="208" height="22"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="ipa的路径" drawsBackground="YES" id="534">
                             <font key="font" metaFont="system"/>
@@ -95,8 +96,8 @@
                             <outlet property="nextKeyView" destination="535" id="583"/>
                         </connections>
                     </textField>
-                    <textField verticalHuggingPriority="750" id="543" customClass="IRTextFieldDrag">
-                        <rect key="frame" x="20" y="106" width="208" height="22"/>
+                    <textField verticalHuggingPriority="750" misplaced="YES" id="543" customClass="IRTextFieldDrag">
+                        <rect key="frame" x="20" y="116" width="208" height="22"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="entitlements.plist的路径" drawsBackground="YES" id="544">
                             <font key="font" metaFont="system"/>
@@ -108,7 +109,7 @@
                         </connections>
                     </textField>
                     <button verticalHuggingPriority="750" id="535">
-                        <rect key="frame" x="230" y="159" width="96" height="32"/>
+                        <rect key="frame" x="230" y="165" width="96" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="push" title="浏览" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="536">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -119,8 +120,8 @@
                             <outlet property="nextKeyView" destination="563" id="584"/>
                         </connections>
                     </button>
-                    <textField verticalHuggingPriority="750" id="563" customClass="IRTextFieldDrag">
-                        <rect key="frame" x="20" y="136" width="208" height="22"/>
+                    <textField verticalHuggingPriority="750" misplaced="YES" id="563" customClass="IRTextFieldDrag">
+                        <rect key="frame" x="20" y="143" width="208" height="22"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="mobileprovision的路径" drawsBackground="YES" id="566">
                             <font key="font" metaFont="system"/>
@@ -131,8 +132,8 @@
                             <outlet property="nextKeyView" destination="564" id="585"/>
                         </connections>
                     </textField>
-                    <button verticalHuggingPriority="750" id="564">
-                        <rect key="frame" x="230" y="129" width="96" height="32"/>
+                    <button verticalHuggingPriority="750" misplaced="YES" id="564">
+                        <rect key="frame" x="230" y="136" width="96" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="push" title="浏览" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="565">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -143,8 +144,8 @@
                             <outlet property="nextKeyView" destination="543" id="609"/>
                         </connections>
                     </button>
-                    <button verticalHuggingPriority="750" id="595">
-                        <rect key="frame" x="230" y="99" width="96" height="32"/>
+                    <button verticalHuggingPriority="750" misplaced="YES" id="595">
+                        <rect key="frame" x="230" y="109" width="96" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="push" title="浏览" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="596">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -175,8 +176,8 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <comboBox verticalHuggingPriority="750" id="590">
-                        <rect key="frame" x="20" y="43" width="303" height="26"/>
+                    <comboBox verticalHuggingPriority="750" misplaced="YES" id="590">
+                        <rect key="frame" x="20" y="37" width="303" height="26"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" placeholderString="请选择一个证书" drawsBackground="YES" completes="NO" usesDataSource="YES" numberOfVisibleItems="5" id="591">
                             <font key="font" size="13" name="STHeitiSC-Light"/>
@@ -193,8 +194,8 @@
                         <rect key="frame" x="20" y="14" width="16" height="16"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     </progressIndicator>
-                    <textField verticalHuggingPriority="750" id="572" customClass="IRTextFieldDrag">
-                        <rect key="frame" x="20" y="75" width="208" height="22"/>
+                    <textField verticalHuggingPriority="750" misplaced="YES" id="572" customClass="IRTextFieldDrag">
+                        <rect key="frame" x="20" y="91" width="208" height="22"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" enabled="NO" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="需要修改的App ID" drawsBackground="YES" id="573">
                             <font key="font" metaFont="system"/>
@@ -205,8 +206,8 @@
                             <outlet property="nextKeyView" destination="574" id="587"/>
                         </connections>
                     </textField>
-                    <button id="574">
-                        <rect key="frame" x="248" y="77" width="74" height="18"/>
+                    <button misplaced="YES" id="574">
+                        <rect key="frame" x="248" y="90" width="74" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="check" title=" 修改 ID" bezelStyle="regularSquare" imagePosition="left" inset="2" id="575">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -217,6 +218,30 @@
                             <outlet property="nextKeyView" destination="590" id="611"/>
                         </connections>
                     </button>
+                    <textField verticalHuggingPriority="750" misplaced="YES" id="Or3-jO-muy" userLabel="BundleVersion" customClass="IRTextFieldDrag">
+                        <rect key="frame" x="180" y="65" width="140" height="22"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="BundleVersion" drawsBackground="YES" id="ClS-nd-sU7">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                        <connections>
+                            <outlet property="nextKeyView" destination="574" id="H8a-r9-tbg"/>
+                        </connections>
+                    </textField>
+                    <textField verticalHuggingPriority="750" misplaced="YES" id="5a4-Us-8iA" userLabel="BundleVersionStr" customClass="IRTextFieldDrag">
+                        <rect key="frame" x="20" y="65" width="150" height="22"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="BundleVersionString" drawsBackground="YES" id="JlI-Fi-4T3">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                        <connections>
+                            <outlet property="nextKeyView" destination="574" id="tw8-mq-KOJ"/>
+                        </connections>
+                    </textField>
                 </subviews>
             </view>
             <connections>
@@ -227,6 +252,8 @@
             <connections>
                 <outlet property="browseButton" destination="535" id="546"/>
                 <outlet property="bundleIDField" destination="572" id="576"/>
+                <outlet property="bundleVersion" destination="Or3-jO-muy" id="UXV-uw-IM3"/>
+                <outlet property="bundleVersionStr" destination="5a4-Us-8iA" id="ts1-1i-tgM"/>
                 <outlet property="certComboBox" destination="590" id="592"/>
                 <outlet property="changeBundleIDCheckbox" destination="574" id="577"/>
                 <outlet property="entitlementBrowseButton" destination="595" id="607"/>
@@ -269,7 +296,7 @@
                         <rect key="frame" x="101.00000067379159" y="49" width="303" height="182"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="yH0-zO-1ov">
-                            <font key="font" size="11" name="LucidaGrande"/>
+                            <font key="font" metaFont="smallSystem"/>
                             <string key="title">iReSign 允许您使用自己的苹果开发者证书重新签名任何未加密的ipa文件，只要遵循如下操作：
 
 1. 使用 “浏览” 按键找到需要签名的ipa或者输入需要签名的ipa文件路径。
