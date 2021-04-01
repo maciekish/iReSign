@@ -6,7 +6,7 @@ iReSign allows iDevice app bundles (.ipa) files to be signed or resigned with a 
 How to use
 =======
 
-iReSign allows you to re-sign any unencrypted ipa-file with any certificate for which you hold the corresponding private key. iResign can also created a signed ipa-file from an xcarchive file.
+iReSign allows you to re-sign any unencrypted ipa-file with any certificate for which you hold the corresponding private key. iResign can also create a signed ipa-file from an xcarchive file.
 
 1. Drag your unsigned .ipa or .xcarchive file to the top box, or use the browse button.
 
