@@ -1,8 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6254" systemVersion="14D87h" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2555" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6254"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11542"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -59,6 +60,219 @@
                         </items>
                     </menu>
                 </menuItem>
+                <menuItem title="Edit" id="aQH-sv-GX3">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <menu key="submenu" title="Edit" id="iMZ-wY-ODw">
+                        <items>
+                            <menuItem title="Undo" keyEquivalent="z" id="Msv-HE-SsG">
+                                <connections>
+                                    <action selector="undo:" target="-1" id="IlN-2T-srp"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Redo" keyEquivalent="Z" id="R57-pj-UGe">
+                                <connections>
+                                    <action selector="redo:" target="-1" id="Xhf-gN-aCM"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="ckJ-tf-RBe"/>
+                            <menuItem title="Cut" keyEquivalent="x" id="Avu-Pq-t1i">
+                                <connections>
+                                    <action selector="cut:" target="-1" id="5wf-JS-Bxi"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Copy" keyEquivalent="c" id="mor-Au-t7k">
+                                <connections>
+                                    <action selector="copy:" target="-1" id="LlF-PF-dPc"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Paste" keyEquivalent="v" id="fN7-I3-tdX">
+                                <connections>
+                                    <action selector="paste:" target="-1" id="Ls8-4g-8lf"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Paste and Match Style" keyEquivalent="V" id="Enf-hw-tAl">
+                                <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
+                                <connections>
+                                    <action selector="pasteAsPlainText:" target="-1" id="jdu-UE-S13"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Delete" id="NnQ-yd-RqA">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="delete:" target="-1" id="KQ5-Ou-UMG"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Select All" keyEquivalent="a" id="otu-hy-G6g">
+                                <connections>
+                                    <action selector="selectAll:" target="-1" id="NGZ-uy-2Qi"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="vuK-b6-D3J"/>
+                            <menuItem title="Find" id="bp9-nF-9nn">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Find" id="uIZ-16-sng">
+                                    <items>
+                                        <menuItem title="Find…" tag="1" keyEquivalent="f" id="BLt-pT-CdG">
+                                            <connections>
+                                                <action selector="performFindPanelAction:" target="-1" id="bp0-ev-7r6"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Find Next" tag="2" keyEquivalent="g" id="uAn-kI-C61">
+                                            <connections>
+                                                <action selector="performFindPanelAction:" target="-1" id="VWF-0s-ODg"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Find Previous" tag="3" keyEquivalent="G" id="orx-Pd-tpe">
+                                            <connections>
+                                                <action selector="performFindPanelAction:" target="-1" id="DFn-dL-wrd"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Use Selection for Find" tag="7" keyEquivalent="e" id="2O0-Cr-ACu">
+                                            <connections>
+                                                <action selector="performFindPanelAction:" target="-1" id="Hnh-Kw-ivp"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Jump to Selection" keyEquivalent="j" id="I5M-FA-i9s">
+                                            <connections>
+                                                <action selector="centerSelectionInVisibleArea:" target="-1" id="XAv-Vd-bJL"/>
+                                            </connections>
+                                        </menuItem>
+                                    </items>
+                                </menu>
+                            </menuItem>
+                            <menuItem title="Spelling and Grammar" id="fWK-HW-Rt3">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Spelling" id="RuD-Xt-a4g">
+                                    <items>
+                                        <menuItem title="Show Spelling and Grammar" keyEquivalent=":" id="wo5-Co-hhu">
+                                            <connections>
+                                                <action selector="showGuessPanel:" target="-1" id="kSP-9P-qQY"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Check Document Now" keyEquivalent=";" id="z7k-pD-Kwk">
+                                            <connections>
+                                                <action selector="checkSpelling:" target="-1" id="RXp-aZ-bfL"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="uvd-ry-7NP"/>
+                                        <menuItem title="Check Spelling While Typing" id="1i1-ae-r4O">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="toggleContinuousSpellChecking:" target="-1" id="FpV-nb-Z4C"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Check Grammar With Spelling" id="64R-iN-RSL">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="toggleGrammarChecking:" target="-1" id="cya-8E-Jqm"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Correct Spelling Automatically" id="JCe-7k-gOY">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="toggleAutomaticSpellingCorrection:" target="-1" id="jZF-KG-OcV"/>
+                                            </connections>
+                                        </menuItem>
+                                    </items>
+                                </menu>
+                            </menuItem>
+                            <menuItem title="Substitutions" id="EF2-wb-jgY">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Substitutions" id="Grq-bA-vCc">
+                                    <items>
+                                        <menuItem title="Show Substitutions" id="RP5-71-8xS">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="orderFrontSubstitutionsPanel:" target="-1" id="D2M-Re-odl"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="1ZS-94-Y8t"/>
+                                        <menuItem title="Smart Copy/Paste" id="idK-gL-PQ2">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="toggleSmartInsertDelete:" target="-1" id="9Ct-iM-ceg"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Smart Quotes" id="GWB-SB-2B1">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="toggleAutomaticQuoteSubstitution:" target="-1" id="hOu-NB-aRw"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Smart Dashes" id="CBa-vL-mjh">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="toggleAutomaticDashSubstitution:" target="-1" id="Bn3-Os-VDu"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Smart Links" id="xMW-1w-3Ff">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="toggleAutomaticLinkDetection:" target="-1" id="zYO-DW-30Q"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Data Detectors" id="wr1-uQ-hlR">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="toggleAutomaticDataDetection:" target="-1" id="X5o-70-vrf"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Text Replacement" id="OWr-F5-YOg">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="toggleAutomaticTextReplacement:" target="-1" id="5rF-7j-EmE"/>
+                                            </connections>
+                                        </menuItem>
+                                    </items>
+                                </menu>
+                            </menuItem>
+                            <menuItem title="Transformations" id="quK-P6-0zQ">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Transformations" id="gwQ-fD-Wh0">
+                                    <items>
+                                        <menuItem title="Make Upper Case" id="Cbm-OU-VM3">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="uppercaseWord:" target="-1" id="zgE-Se-rAC"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Make Lower Case" id="CiI-qp-xqY">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="lowercaseWord:" target="-1" id="Zmp-bW-eLI"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Capitalize" id="ebx-6x-zeW">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="capitalizeWord:" target="-1" id="goA-EI-DVB"/>
+                                            </connections>
+                                        </menuItem>
+                                    </items>
+                                </menu>
+                            </menuItem>
+                            <menuItem title="Speech" id="vDU-NB-Xuj">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Speech" id="c7q-8C-Sd1">
+                                    <items>
+                                        <menuItem title="Start Speaking" id="5tv-ne-njK">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="startSpeaking:" target="-1" id="Um6-Xd-vaH"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Stop Speaking" id="b93-Wq-CkH">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="stopSpeaking:" target="-1" id="Gj1-CX-lth"/>
+                                            </connections>
+                                        </menuItem>
+                                    </items>
+                                </menu>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
                 <menuItem title="Help" id="490">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Help" systemMenu="help" id="491">
@@ -75,16 +289,16 @@
         </menu>
         <window title="iReSign" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="default" id="371">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
-            <rect key="contentRect" x="0.0" y="405" width="333" height="201"/>
+            <rect key="contentRect" x="0.0" y="405" width="333" height="261"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1028"/>
             <value key="minSize" type="size" width="333" height="201"/>
             <value key="maxSize" type="size" width="666" height="402"/>
             <view key="contentView" id="372">
-                <rect key="frame" x="0.0" y="0.0" width="333" height="201"/>
+                <rect key="frame" x="0.0" y="0.0" width="333" height="261"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <textField verticalHuggingPriority="750" id="533" customClass="IRTextFieldDrag">
-                        <rect key="frame" x="20" y="166" width="208" height="22"/>
+                        <rect key="frame" x="20" y="219" width="208" height="22"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="/path/to/app.ipa or /path/to/app.xcarchive" drawsBackground="YES" id="534">
                             <font key="font" metaFont="system"/>
@@ -96,7 +310,7 @@
                         </connections>
                     </textField>
                     <textField verticalHuggingPriority="750" id="543" customClass="IRTextFieldDrag">
-                        <rect key="frame" x="20" y="106" width="208" height="22"/>
+                        <rect key="frame" x="20" y="159" width="208" height="22"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="/path/to/entitlements.plist" drawsBackground="YES" id="544">
                             <font key="font" metaFont="system"/>
@@ -108,7 +322,7 @@
                         </connections>
                     </textField>
                     <button verticalHuggingPriority="750" id="535">
-                        <rect key="frame" x="230" y="159" width="96" height="32"/>
+                        <rect key="frame" x="230" y="212" width="96" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="push" title="Browse" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="536">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -120,7 +334,7 @@
                         </connections>
                     </button>
                     <textField verticalHuggingPriority="750" id="563" customClass="IRTextFieldDrag">
-                        <rect key="frame" x="20" y="136" width="208" height="22"/>
+                        <rect key="frame" x="20" y="189" width="208" height="22"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="/path/to/.mobileprovision" drawsBackground="YES" id="566">
                             <font key="font" metaFont="system"/>
@@ -132,7 +346,7 @@
                         </connections>
                     </textField>
                     <button verticalHuggingPriority="750" id="564">
-                        <rect key="frame" x="230" y="129" width="96" height="32"/>
+                        <rect key="frame" x="230" y="182" width="96" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="push" title="Browse" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="565">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -144,7 +358,7 @@
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" id="595">
-                        <rect key="frame" x="230" y="99" width="96" height="32"/>
+                        <rect key="frame" x="230" y="152" width="96" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="push" title="Browse" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="596">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -164,6 +378,7 @@
                         </buttonCell>
                         <connections>
                             <action selector="resign:" target="494" id="551"/>
+                            <outlet property="nextKeyView" destination="533" id="nKO-de-gTC"/>
                         </connections>
                     </button>
                     <textField hidden="YES" verticalHuggingPriority="750" id="555">
@@ -186,7 +401,7 @@
                         <connections>
                             <outlet property="dataSource" destination="494" id="593"/>
                             <outlet property="delegate" destination="494" id="594"/>
-                            <outlet property="nextKeyView" destination="539" id="612"/>
+                            <outlet property="nextKeyView" destination="539" id="YlX-va-Ght"/>
                         </connections>
                     </comboBox>
                     <progressIndicator horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" id="557">
@@ -194,7 +409,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     </progressIndicator>
                     <textField verticalHuggingPriority="750" id="572" customClass="IRTextFieldDrag">
-                        <rect key="frame" x="20" y="75" width="208" height="22"/>
+                        <rect key="frame" x="20" y="128" width="208" height="22"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" enabled="NO" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="com.companyname.appname" drawsBackground="YES" id="573">
                             <font key="font" metaFont="system"/>
@@ -202,11 +417,11 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                         <connections>
-                            <outlet property="nextKeyView" destination="574" id="587"/>
+                            <outlet property="nextKeyView" destination="EgV-eQ-1ab" id="fdd-eO-eSG"/>
                         </connections>
                     </textField>
                     <button id="574">
-                        <rect key="frame" x="234" y="77" width="88" height="18"/>
+                        <rect key="frame" x="234" y="130" width="88" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="check" title="Change ID" bezelStyle="regularSquare" imagePosition="left" inset="2" id="575">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -214,7 +429,55 @@
                         </buttonCell>
                         <connections>
                             <action selector="changeBundleIDPressed:" target="494" id="578"/>
-                            <outlet property="nextKeyView" destination="590" id="611"/>
+                            <outlet property="nextKeyView" destination="EgV-eQ-1ab" id="OoC-G5-Spr"/>
+                        </connections>
+                    </button>
+                    <textField verticalHuggingPriority="750" id="F2n-dZ-TWF" customClass="IRTextFieldDrag">
+                        <rect key="frame" x="20" y="102" width="166" height="22"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" enabled="NO" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="New version number" drawsBackground="YES" id="adZ-Zw-iNu">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                        <connections>
+                            <outlet property="nextKeyView" destination="Krc-Bx-mXZ" id="ozO-2O-tUr"/>
+                        </connections>
+                    </textField>
+                    <button id="EgV-eQ-1ab">
+                        <rect key="frame" x="192" y="104" width="130" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                        <buttonCell key="cell" type="check" title="Change Version #" bezelStyle="regularSquare" imagePosition="left" inset="2" id="13q-oY-smn">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="changeVersionNumberPressed:" target="494" id="pdk-2r-MiZ"/>
+                            <outlet property="nextKeyView" destination="Krc-Bx-mXZ" id="SaS-eU-wIG"/>
+                        </connections>
+                    </button>
+                    <textField verticalHuggingPriority="750" id="FDy-y5-CV7" customClass="IRTextFieldDrag">
+                        <rect key="frame" x="20" y="76" width="166" height="22"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" enabled="NO" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="New build number" drawsBackground="YES" id="Yuy-yk-2g3">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                        <connections>
+                            <outlet property="nextKeyView" destination="590" id="0lh-UX-Qz6"/>
+                        </connections>
+                    </textField>
+                    <button id="Krc-Bx-mXZ">
+                        <rect key="frame" x="192" y="78" width="130" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                        <buttonCell key="cell" type="check" title="Change Build #" bezelStyle="regularSquare" imagePosition="left" inset="2" id="R77-Zh-FrN">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="changeBuildNumberPressed:" target="494" id="wfY-If-MNn"/>
+                            <outlet property="nextKeyView" destination="590" id="cAw-SA-06k"/>
                         </connections>
                     </button>
                 </subviews>
@@ -222,13 +485,17 @@
             <connections>
                 <outlet property="initialFirstResponder" destination="535" id="581"/>
             </connections>
+            <point key="canvasLocation" x="127" y="-282"/>
         </window>
         <customObject id="494" customClass="iReSignAppDelegate">
             <connections>
                 <outlet property="browseButton" destination="535" id="546"/>
+                <outlet property="buildNumberField" destination="FDy-y5-CV7" id="iD5-S4-kQw"/>
                 <outlet property="bundleIDField" destination="572" id="576"/>
                 <outlet property="certComboBox" destination="590" id="592"/>
+                <outlet property="changeBuildNumberCheckBox" destination="Krc-Bx-mXZ" id="ho6-eY-w2R"/>
                 <outlet property="changeBundleIDCheckbox" destination="574" id="577"/>
+                <outlet property="changeVersionNumberCheckBox" destination="EgV-eQ-1ab" id="xSt-B8-tQ1"/>
                 <outlet property="entitlementBrowseButton" destination="595" id="607"/>
                 <outlet property="entitlementField" destination="543" id="608"/>
                 <outlet property="flurry" destination="557" id="562"/>
@@ -237,6 +504,7 @@
                 <outlet property="provisioningPathField" destination="563" id="569"/>
                 <outlet property="resignButton" destination="539" id="549"/>
                 <outlet property="statusLabel" destination="555" id="561"/>
+                <outlet property="versionumberField" destination="F2n-dZ-TWF" id="hXd-kN-eRo"/>
                 <outlet property="window" destination="371" id="532"/>
             </connections>
         </customObject>
@@ -252,12 +520,12 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" id="OGH-jD-zcO">
-                        <rect key="frame" x="20" y="190.0000017943762" width="69" height="69"/>
+                        <rect key="frame" x="20" y="190" width="69" height="69"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="Icon" id="LSY-JN-rDx"/>
                     </imageView>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Ft3-WI-tTm">
-                        <rect key="frame" x="101.00000067379159" y="239.0000017943762" width="303" height="20"/>
+                        <rect key="frame" x="101" y="239" width="303" height="20"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="How to use iReSign" id="QDO-Yr-Chc">
                             <font key="font" metaFont="systemBold" size="14"/>
@@ -266,7 +534,7 @@
                         </textFieldCell>
                     </textField>
                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" id="Kc4-KR-COs">
-                        <rect key="frame" x="101.00000067379159" y="49" width="303" height="182"/>
+                        <rect key="frame" x="101" y="49" width="303" height="182"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="yH0-zO-1ov">
                             <font key="font" metaFont="smallSystem"/>
@@ -282,7 +550,7 @@
                         </textFieldCell>
                     </textField>
                     <button verticalHuggingPriority="750" id="cX9-Vb-ecI">
-                        <rect key="frame" x="316.00000067379159" y="13" width="92" height="32"/>
+                        <rect key="frame" x="316" y="13" width="92" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <buttonCell key="cell" type="push" title="OK" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="RQ5-B4-GuE">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>

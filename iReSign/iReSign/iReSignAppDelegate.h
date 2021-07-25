@@ -30,18 +30,22 @@
     NSString *workingPath;
     NSString *appName;
     NSString *fileName;
+    NSString *entitlementsDirPath;
+    NSString *entitlementsFilePath;
     
     NSString *entitlementsResult;
     NSString *codesigningResult;
     NSString *verificationResult;
     
-    NSMutableArray *frameworks;
-    Boolean hasFrameworks;
+    NSMutableArray *additionalResourcesToSign;
+    Boolean additionalToSign;
     
     IBOutlet IRTextFieldDrag *pathField;
     IBOutlet IRTextFieldDrag *provisioningPathField;
     IBOutlet IRTextFieldDrag *entitlementField;
     IBOutlet IRTextFieldDrag *bundleIDField;
+    IBOutlet IRTextFieldDrag *versionumberField;
+    IBOutlet IRTextFieldDrag *buildNumberField;
     IBOutlet NSButton    *browseButton;
     IBOutlet NSButton    *provisioningBrowseButton;
     IBOutlet NSButton *entitlementBrowseButton;
@@ -50,6 +54,8 @@
     IBOutlet NSProgressIndicator *flurry;
     IBOutlet NSButton *changeBundleIDCheckbox;
     
+    IBOutlet NSButton *changeVersionNumberCheckBox;
+    IBOutlet NSButton *changeBuildNumberCheckBox;
     IBOutlet NSComboBox *certComboBox;
     NSMutableArray *certComboBoxItems;
     NSTask *certTask;
@@ -59,13 +65,13 @@
 
 @property (unsafe_unretained) IBOutlet NSWindow *window;
 
-@property (nonatomic, strong) NSString *workingPath;
-
 - (IBAction)resign:(id)sender;
 - (IBAction)browse:(id)sender;
 - (IBAction)provisioningBrowse:(id)sender;
 - (IBAction)entitlementBrowse:(id)sender;
 - (IBAction)changeBundleIDPressed:(id)sender;
+- (IBAction)changeVersionNumberPressed:(id)sender;
+- (IBAction)changeBuildNumberPressed:(id)sender;
 
 - (void)checkUnzip:(NSTimer *)timer;
 - (void)checkCopy:(NSTimer *)timer;

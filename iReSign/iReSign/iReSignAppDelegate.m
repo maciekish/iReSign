@@ -10,9 +10,15 @@
 #import "iReSignAppDelegate.h"
 
 static NSString *kKeyPrefsBundleIDChange            = @"keyBundleIDChange";
+static NSString *kKeyPrefsBuildNumberchange         = @"keyBunildNumberChange";
+static NSString *kKeyPrefsVersionNumberChange       = @"keyVersionNumberChange";
 
 static NSString *kKeyBundleIDPlistApp               = @"CFBundleIdentifier";
+static NSString *kKeyVersionNumberPlistApp          = @"CFBundleShortVersionString";
+static NSString *kKeyBuildNumberPlistApp            = @"CFBundleVersion";
 static NSString *kKeyBundleIDPlistiTunesArtwork     = @"softwareVersionBundleId";
+static NSString *kKeyVersionNumberPlistiTunesArtwork = @"bundleShortVersionString";
+static NSString *kKeyBuildNumberPlistiTunesArtwork  = @"bundleVersion";
 static NSString *kKeyInfoPlistApplicationProperties = @"ApplicationProperties";
 static NSString *kKeyInfoPlistApplicationPath       = @"ApplicationPath";
 static NSString *kFrameworksDirName                 = @"Frameworks";
@@ -20,13 +26,23 @@ static NSString *kPayloadDirName                    = @"Payload";
 static NSString *kProductsDirName                   = @"Products";
 static NSString *kInfoPlistFilename                 = @"Info.plist";
 static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
+static NSString *kKeyBuildNumber                    = @"CFBuildNumber";
+static NSString *kKeyVersionNumber                  = @"VersionNumber";
+static NSString *kKeyCFBundleURLTypes               = @"CFBundleURLTypes";
+static NSString *kKeyCFBundleURLName                = @"CFBundleURLName";
+static NSString *kKeyCFBundleURLSchemes             = @"CFBundleURLSchemes";
+
+@interface iReSignAppDelegate()
+
+@property (nonatomic , strong) NSDictionary *signinigCerts;
+
+@end
 
 @implementation iReSignAppDelegate
 
-@synthesize window,workingPath;
+@synthesize window;
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification
-{
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     [flurry setAlphaValue:0.5];
     
     defaults = [NSUserDefaults standardUserDefaults];
@@ -66,20 +82,24 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     verificationResult = nil;
     
     sourcePath = [pathField stringValue];
+    entitlementsFilePath = [entitlementField stringValue];
     workingPath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"com.appulize.iresign"];
+    entitlementsDirPath = [workingPath stringByAppendingString:@"-entitlements"];
     
     if ([certComboBox objectValue]) {
         if (([[[sourcePath pathExtension] lowercaseString] isEqualToString:@"ipa"]) ||
             ([[[sourcePath pathExtension] lowercaseString] isEqualToString:@"xcarchive"])) {
             [self disableControls];
             
-            NSLog(@"Setting up working directory in %@",workingPath);
+            NSLog(@"Setting up working directory in [%@], and entitlements work directory in [%@]",workingPath, entitlementsDirPath);
             [statusLabel setHidden:NO];
-            [statusLabel setStringValue:@"Setting up working directory"];
+            [statusLabel setStringValue:@"Setting up working directories"];
             
             [[NSFileManager defaultManager] removeItemAtPath:workingPath error:nil];
-            
             [[NSFileManager defaultManager] createDirectoryAtPath:workingPath withIntermediateDirectories:TRUE attributes:nil error:nil];
+            
+            [[NSFileManager defaultManager] removeItemAtPath:entitlementsDirPath error:nil];
+            [[NSFileManager defaultManager] createDirectoryAtPath:entitlementsDirPath withIntermediateDirectories:TRUE attributes:nil error:nil];
             
             if ([[[sourcePath pathExtension] lowercaseString] isEqualToString:@"ipa"]) {
                 if (sourcePath && [sourcePath length] > 0) {
@@ -94,9 +114,8 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
                 [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkUnzip:) userInfo:nil repeats:TRUE];
                 
                 [unzipTask launch];
-            }
-            else {
-                NSString* payloadPath = [workingPath stringByAppendingPathComponent:kPayloadDirName];
+            } else {
+                NSString *payloadPath = [workingPath stringByAppendingPathComponent:kPayloadDirName];
                 
                 NSLog(@"Setting up %@ path in %@", kPayloadDirName, payloadPath);
                 [statusLabel setStringValue:[NSString stringWithFormat:@"Setting up %@ path", kPayloadDirName]];
@@ -106,14 +125,14 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
                 NSLog(@"Retrieving %@", kInfoPlistFilename);
                 [statusLabel setStringValue:[NSString stringWithFormat:@"Retrieving %@", kInfoPlistFilename]];
                 
-                NSString* infoPListPath = [sourcePath stringByAppendingPathComponent:kInfoPlistFilename];
+                NSString *infoPListPath = [sourcePath stringByAppendingPathComponent:kInfoPlistFilename];
                 
-                NSDictionary* infoPListDict = [NSDictionary dictionaryWithContentsOfFile:infoPListPath];
+                NSDictionary *infoPListDict = [NSDictionary dictionaryWithContentsOfFile:infoPListPath];
                 
                 if (infoPListDict != nil) {
-                    NSString* applicationPath = nil;
+                    NSString *applicationPath = nil;
                     
-                    NSDictionary* applicationPropertiesDict = [infoPListDict objectForKey:kKeyInfoPlistApplicationProperties];
+                    NSDictionary *applicationPropertiesDict = [infoPListDict objectForKey:kKeyInfoPlistApplicationProperties];
                     
                     if (applicationPropertiesDict != nil) {
                         applicationPath = [applicationPropertiesDict objectForKey:kKeyInfoPlistApplicationPath];
@@ -132,21 +151,18 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
                         [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(checkCopy:) userInfo:nil repeats:TRUE];
                         
                         [copyTask launch];
-                    }
-                    else {
+                    } else {
                         [self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:[NSString stringWithFormat:@"Unable to parse %@", kInfoPlistFilename]];
                         [self enableControls];
                         [statusLabel setStringValue:@"Ready"];
                     }
-                }
-                else {
+                } else {
                     [self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:[NSString stringWithFormat:@"Retrieve %@ failed", kInfoPlistFilename]];
                     [self enableControls];
                     [statusLabel setStringValue:@"Ready"];
                 }
             }
-        }
-        else {
+        } else {
             [self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"You must choose an *.ipa or *.xcarchive file"];
             [self enableControls];
             [statusLabel setStringValue:@"Please try again"];
@@ -169,6 +185,14 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
             
             if (changeBundleIDCheckbox.state == NSOnState) {
                 [self doBundleIDChange:bundleIDField.stringValue];
+            }
+            
+            if (changeBuildNumberCheckBox.state == NSOnState) {
+                [self doBuildNumber:buildNumberField.stringValue];
+            }
+            
+            if (changeVersionNumberCheckBox.state == NSOnState) {
+                [self doVersionNumber:versionumberField.stringValue];
             }
             
             if ([[provisioningPathField stringValue] isEqualTo:@""]) {
@@ -194,6 +218,14 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
         
         if (changeBundleIDCheckbox.state == NSOnState) {
             [self doBundleIDChange:bundleIDField.stringValue];
+        }
+        
+        if (changeBuildNumberCheckBox.state == NSOnState) {
+            [self doBuildNumber:buildNumberField.stringValue];
+        }
+
+        if (changeVersionNumberCheckBox.state == NSOnState) {
+            [self doVersionNumber:versionumberField.stringValue];
         }
         
         if ([[provisioningPathField stringValue] isEqualTo:@""]) {
@@ -251,7 +283,36 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     
     if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
         plist = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+        NSString *orgBundleID = plist[bundleIDKey];
         [plist setObject:newBundleID forKey:bundleIDKey];
+        
+        if (plist[kKeyCFBundleURLTypes] != nil) {
+            NSMutableArray *cfBundleURLTypes = [NSMutableArray arrayWithArray:plist[kKeyCFBundleURLTypes]];
+            for (int j = 0; j < cfBundleURLTypes.count; j++) {
+                NSObject *object = cfBundleURLTypes[j];
+                if ([object isKindOfClass:[NSDictionary class]]) {
+                    NSMutableDictionary *d = [NSMutableDictionary dictionaryWithDictionary:(NSDictionary*)object];
+                    NSObject *object1 = d[kKeyCFBundleURLName];
+                    if (object1 != nil && [object1 isKindOfClass:[NSString class]] && [((NSString*)object1) isEqualToString:orgBundleID]) {
+                        [d setObject:newBundleID forKey:kKeyCFBundleURLName];
+                    }
+                    NSObject *object2 = d[kKeyCFBundleURLSchemes];
+                    if (object2!=nil && [object2 isKindOfClass:[NSArray class]]) {
+                        NSString *orgAcBundleID = [NSString stringWithFormat:@"ac%@",orgBundleID];
+                        NSMutableArray *cfBundleURLSchemes = [NSMutableArray arrayWithArray:(NSArray*)object2];
+                        for(int i = 0; i < cfBundleURLSchemes.count; i++) {
+                            NSObject *object3 = cfBundleURLSchemes[i];
+                            if ([object3 isKindOfClass:[NSString class]] && [((NSString*)object3) isEqualToString:orgAcBundleID]) {
+                                cfBundleURLSchemes[i] = [NSString stringWithFormat:@"ac%@", newBundleID];
+                            }
+                        }
+                        [d setObject:cfBundleURLSchemes forKey:kKeyCFBundleURLSchemes];
+                    }
+                    cfBundleURLTypes[j] = d;
+                }
+            }
+            [plist setObject:cfBundleURLTypes forKey:kKeyCFBundleURLTypes];
+        }
         
         NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:plist format:options options:kCFPropertyListImmutable error:nil];
         
@@ -262,6 +323,110 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     return NO;
 }
 
+- (BOOL)doBuildNumber:(NSString *)newBuildNumber {
+    BOOL success = YES;
+    
+    success &= [self doAppBuildNumber:newBuildNumber];
+    success &= [self doITunesMetadataBuildNumberChange:newBuildNumber];
+    
+    return success;
+}
+
+- (BOOL)doITunesMetadataBuildNumberChange:(NSString *)newBuildNumber {
+    NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:workingPath error:nil];
+    NSString *infoPlistPath = nil;
+    
+    for (NSString *file in dirContents) {
+        if ([[[file pathExtension] lowercaseString] isEqualToString:@"plist"]) {
+            infoPlistPath = [workingPath stringByAppendingPathComponent:file];
+            break;
+        }
+    }
+    
+    return [self changeBuildNumberForFile:infoPlistPath buildNumberIDKey:kKeyBuildNumberPlistiTunesArtwork newBuildNumber:newBuildNumber plistOutOptions:NSPropertyListXMLFormat_v1_0];
+}
+
+- (BOOL)doAppBuildNumber:(NSString *)newBuildNumber {
+    NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[workingPath stringByAppendingPathComponent:kPayloadDirName] error:nil];
+    NSString *infoPlistPath = nil;
+    
+    for (NSString *file in dirContents) {
+        if ([[[file pathExtension] lowercaseString] isEqualToString:@"app"]) {
+            infoPlistPath = [[[workingPath stringByAppendingPathComponent:kPayloadDirName]
+                              stringByAppendingPathComponent:file]
+                             stringByAppendingPathComponent:kInfoPlistFilename];
+            break;
+        }
+    }
+    
+    return [self changeBuildNumberForFile:infoPlistPath buildNumberIDKey:kKeyBuildNumberPlistApp newBuildNumber:newBuildNumber plistOutOptions:NSPropertyListBinaryFormat_v1_0];
+}
+
+- (BOOL)changeBuildNumberForFile:(NSString *)filePath buildNumberIDKey:(NSString *)buildNumberIDKey newBuildNumber:(NSString *)newBuildNumber plistOutOptions:(NSPropertyListWriteOptions)options {
+    
+    NSMutableDictionary *plist = nil;
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+        plist = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+        [plist setObject:newBuildNumber forKey:buildNumberIDKey];
+        
+        NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:plist format:options options:kCFPropertyListImmutable error:nil];
+        
+        return [xmlData writeToFile:filePath atomically:YES];
+    }
+    
+    return NO;
+}
+
+- (BOOL)doVersionNumber:(NSString *)newVersionNumber {
+    BOOL success = YES;
+    
+    success &= [self doAppVersionNumber:newVersionNumber];
+    success &= [self doITunesMetadataVersionNumberChange:newVersionNumber];
+    
+    return success;
+}
+
+- (BOOL)doITunesMetadataVersionNumberChange:(NSString *)newVersionNumber {
+    NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:workingPath error:nil];
+    NSString *infoPlistPath = nil;
+    
+    for (NSString *file in dirContents) {
+        if ([[[file pathExtension] lowercaseString] isEqualToString:@"plist"]) {
+            infoPlistPath = [workingPath stringByAppendingPathComponent:file];
+            break;
+        }
+    }
+    
+    return [self changeVersionNumberForFile:infoPlistPath versionNumberIDKey:kKeyVersionNumberPlistiTunesArtwork newVersionNumber:newVersionNumber plistOutOptions:NSPropertyListXMLFormat_v1_0];
+}
+
+- (BOOL)doAppVersionNumber:(NSString *)newVersionNumber {
+    NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[workingPath stringByAppendingPathComponent:kPayloadDirName] error:nil];
+    NSString *infoPlistPath = nil;
+    
+    for (NSString *file in dirContents) {
+        if ([[[file pathExtension] lowercaseString] isEqualToString:@"app"]) {
+            infoPlistPath = [[[workingPath stringByAppendingPathComponent:kPayloadDirName]
+                              stringByAppendingPathComponent:file]
+                             stringByAppendingPathComponent:kInfoPlistFilename];
+            break;
+        }
+    }
+    
+    return [self changeVersionNumberForFile:infoPlistPath versionNumberIDKey:kKeyVersionNumberPlistApp newVersionNumber:newVersionNumber plistOutOptions:NSPropertyListBinaryFormat_v1_0];
+}
+
+- (BOOL)changeVersionNumberForFile:(NSString *)filePath versionNumberIDKey:(NSString *)versionNumberIDKey newVersionNumber:(NSString *)newVersionNumber plistOutOptions:(NSPropertyListWriteOptions)options {
+    NSMutableDictionary *plist = nil;
+    if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+        plist = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
+        [plist setObject:newVersionNumber forKey:versionNumberIDKey];
+        NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:plist format:options options:kCFPropertyListImmutable error:nil];
+        return [xmlData writeToFile:filePath atomically:YES];
+    }
+    return NO;
+}
 
 - (void)doProvisioning {
     NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[workingPath stringByAppendingPathComponent:kPayloadDirName] error:nil];
@@ -304,7 +469,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
                     NSString *identifierInProvisioning = @"";
                     
                     NSString *embeddedProvisioning = [NSString stringWithContentsOfFile:[appPath stringByAppendingPathComponent:@"embedded.mobileprovision"] encoding:NSASCIIStringEncoding error:nil];
-                    NSArray* embeddedProvisioningLines = [embeddedProvisioning componentsSeparatedByCharactersInSet:
+                    NSArray *embeddedProvisioningLines = [embeddedProvisioning componentsSeparatedByCharactersInSet:
                                                           [NSCharacterSet newlineCharacterSet]];
                     
                     for (int i = 0; i < [embeddedProvisioningLines count]; i++) {
@@ -338,7 +503,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
                     
                     NSLog(@"Mobileprovision identifier: %@",identifierInProvisioning);
                     
-                    NSDictionary *infoplist = [NSDictionary dictionaryWithContentsOfFile:[appPath stringByAppendingPathComponent:@"Info.plist"]];
+                    NSDictionary *infoplist = [NSDictionary dictionaryWithContentsOfFile:[appPath stringByAppendingPathComponent:kInfoPlistFilename]];
                     if ([identifierInProvisioning isEqualTo:[infoplist objectForKey:kKeyBundleIDPlistApp]]) {
                         NSLog(@"Identifiers match");
                         identifierOK = TRUE;
@@ -364,14 +529,14 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     }
 }
 
-- (void)doEntitlementsFixing
-{
-    if (![entitlementField.stringValue isEqualToString:@""] || [provisioningPathField.stringValue isEqualToString:@""]) {
+- (void)doEntitlementsFixing {
+    if (![entitlementsFilePath isEqualToString:@""] || [provisioningPathField.stringValue isEqualToString:@""]) {
         [self doCodeSigning];
         return; // Using a pre-made entitlements file or we're not re-provisioning.
     }
     
     [statusLabel setStringValue:@"Generating entitlements"];
+    NSLog(@"Generating entitlements");
 
     if (appPath) {
         generateEntitlementsTask = [[NSTask alloc] init];
@@ -409,20 +574,28 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     }
 }
 
-- (void)doEntitlementsEdit
-{
-    NSDictionary* entitlements = entitlementsResult.propertyList;
+- (void)doEntitlementsEdit {
+    // macOS 10.12 bug: /usr/bin/security appends a junk line at the top of the XML file.
+    if ([entitlementsResult containsString:@"SecPolicySetValue"]) {
+        NSRange newlineRange = [entitlementsResult rangeOfString:@"\n"];
+        if (newlineRange.location != NSNotFound) {
+            entitlementsResult = [entitlementsResult substringFromIndex:newlineRange.location];
+        }
+    }
+    // end macOS 10.12 bug fix.
+    
+    NSDictionary *entitlements = entitlementsResult.propertyList;
     entitlements = entitlements[@"Entitlements"];
-    NSString* filePath = [workingPath stringByAppendingPathComponent:@"entitlements.plist"];
+    NSString *filePath = [entitlementsDirPath stringByAppendingPathComponent:@"entitlements.plist"];
+    NSLog(@"entitlementsDirPath %@, filePath %@", entitlementsDirPath, filePath);
     NSData *xmlData = [NSPropertyListSerialization dataWithPropertyList:entitlements format:NSPropertyListXMLFormat_v1_0 options:kCFPropertyListImmutable error:nil];
-    if(![xmlData writeToFile:filePath atomically:YES]) {
+    if (![xmlData writeToFile:filePath atomically:YES]) {
         NSLog(@"Error writing entitlements file.");
         [self showAlertOfKind:NSCriticalAlertStyle WithTitle:@"Error" AndMessage:@"Failed entitlements generation"];
         [self enableControls];
         [statusLabel setStringValue:@"Ready"];
-    }
-    else {
-        entitlementField.stringValue = filePath;
+    } else {
+        entitlementsFilePath = filePath;
         [self doCodeSigning];
     }
 }
@@ -430,8 +603,8 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 - (void)doCodeSigning {
     appPath = nil;
     frameworksDirPath = nil;
-    hasFrameworks = NO;
-    frameworks = [[NSMutableArray alloc] init];
+    additionalToSign = NO;
+    additionalResourcesToSign = [[NSMutableArray alloc] init];
     
     NSArray *dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[workingPath stringByAppendingPathComponent:kPayloadDirName] error:nil];
     
@@ -443,14 +616,14 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
             appName = file;
             if ([[NSFileManager defaultManager] fileExistsAtPath:frameworksDirPath]) {
                 NSLog(@"Found %@",frameworksDirPath);
-                hasFrameworks = YES;
+                additionalToSign = YES;
                 NSArray *frameworksContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:frameworksDirPath error:nil];
                 for (NSString *frameworkFile in frameworksContents) {
                     NSString *extension = [[frameworkFile pathExtension] lowercaseString];
                     if ([extension isEqualTo:@"framework"] || [extension isEqualTo:@"dylib"]) {
                         frameworkPath = [frameworksDirPath stringByAppendingPathComponent:frameworkFile];
                         NSLog(@"Found %@",frameworkPath);
-                        [frameworks addObject:frameworkPath];
+                        [additionalResourcesToSign addObject:frameworkPath];
                     }
                 }
             }
@@ -459,10 +632,28 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
         }
     }
     
+    //Sign plugins and other executables except the main one
+    NSString *dir = appPath;
+    NSDirectoryEnumerator *dirEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:dir];
+
+    for (NSString *file in dirEnumerator) {
+        if ([[file lastPathComponent] isEqualToString:kInfoPlistFilename] && [[[file stringByDeletingLastPathComponent] stringByTrimmingCharactersInSet:
+                                                                                                  [NSCharacterSet whitespaceCharacterSet]] length] > 0) {
+            NSString *infoPlistPath = [appPath stringByAppendingPathComponent: file];
+            NSDictionary *infoDict = [NSDictionary dictionaryWithContentsOfFile:infoPlistPath];
+            if ([infoDict objectForKey:@"CFBundleExecutable"] != nil) {
+                additionalToSign = YES;
+                NSString *dirToSign = [infoPlistPath stringByDeletingLastPathComponent];
+                NSLog(@"Found %@", dirToSign);
+                [additionalResourcesToSign addObject:dirToSign];
+            }
+        }
+    }
+    
     if (appPath) {
-        if (hasFrameworks) {
-            [self signFile:[frameworks lastObject]];
-            [frameworks removeLastObject];
+        if (additionalToSign) {
+            [self signFile:[additionalResourcesToSign lastObject]];
+            [additionalResourcesToSign removeLastObject];
         } else {
             [self signFile:appPath];
         }
@@ -473,10 +664,13 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     NSLog(@"Codesigning %@", filePath);
     [statusLabel setStringValue:[NSString stringWithFormat:@"Codesigning %@",filePath]];
     
-    NSMutableArray *arguments = [NSMutableArray arrayWithObjects:@"-fs", [certComboBox objectValue], nil];
+    NSString *certHash = [self.signinigCerts objectForKey:[certComboBox objectValue]] ? [self.signinigCerts objectForKey:[certComboBox objectValue]] :  [certComboBox objectValue];
+    
+    NSMutableArray *arguments = [NSMutableArray arrayWithObjects:@"-fs", certHash, nil];
+    
     NSDictionary *systemVersionDictionary = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
-    NSString * systemVersion = [systemVersionDictionary objectForKey:@"ProductVersion"];
-    NSArray * version = [systemVersion componentsSeparatedByString:@"."];
+    NSString  *systemVersion = [systemVersionDictionary objectForKey:@"ProductVersion"];
+    NSArray *version = [systemVersion componentsSeparatedByString:@"."];
     if ([version[0] intValue]<10 || ([version[0] intValue]==10 && ([version[1] intValue]<9 || ([version[1] intValue]==9 && [version[2] intValue]<5)))) {
         
         /*
@@ -496,18 +690,23 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
          To ensure it is ignored, remove the resource key from the Info.plist file.
          */
         
-        NSString *infoPath = [NSString stringWithFormat:@"%@/Info.plist", filePath];
-        NSMutableDictionary *infoDict = [NSMutableDictionary dictionaryWithContentsOfFile:infoPath];
-        [infoDict removeObjectForKey:@"CFBundleResourceSpecification"];
-        [infoDict writeToFile:infoPath atomically:YES];
-        [arguments addObject:@"--no-strict"]; // http://stackoverflow.com/a/26204757
+        NSString *infoPath = [NSString stringWithFormat:@"%@/%@", filePath, kInfoPlistFilename];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:infoPath]) {
+            NSMutableDictionary *infoDict = [NSMutableDictionary dictionaryWithContentsOfFile:infoPath];
+            [infoDict removeObjectForKey:@"CFBundleResourceSpecification"];
+            [infoDict writeToFile:infoPath atomically:YES];
+            [arguments addObject:@"--no-strict"]; // http://stackoverflow.com/a/26204757
+        }
     }
     
-    if (![[entitlementField stringValue] isEqualToString:@""]) {
-        [arguments addObject:[NSString stringWithFormat:@"--entitlements=%@", [entitlementField stringValue]]];
+    if (![entitlementsFilePath isEqualToString:@""]) {
+        NSLog(@"Signing with entitlements file: %@",  entitlementsFilePath);
+        [arguments addObject:[NSString stringWithFormat:@"--entitlements=%@", entitlementsFilePath]];
     }
     
     [arguments addObjectsFromArray:[NSArray arrayWithObjects:filePath, nil]];
+    
+    NSLog(@"Signing arguments = %@", arguments);
     
     codesignTask = [[NSTask alloc] init];
     [codesignTask setLaunchPath:@"/usr/bin/codesign"];
@@ -529,9 +728,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 
 - (void)watchCodesigning:(NSFileHandle*)streamHandle {
     @autoreleasepool {
-        
         codesigningResult = [[NSString alloc] initWithData:[streamHandle readDataToEndOfFile] encoding:NSASCIIStringEncoding];
-        
     }
 }
 
@@ -539,11 +736,11 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     if ([codesignTask isRunning] == 0) {
         [timer invalidate];
         codesignTask = nil;
-        if (frameworks.count > 0) {
-            [self signFile:[frameworks lastObject]];
-            [frameworks removeLastObject];
-        } else if (hasFrameworks) {
-            hasFrameworks = NO;
+        if (additionalResourcesToSign.count > 0) {
+            [self signFile:[additionalResourcesToSign lastObject]];
+            [additionalResourcesToSign removeLastObject];
+        } else if (additionalToSign) {
+            additionalToSign = NO;
             [self signFile:appPath];
         } else {
             NSLog(@"Codesigning done");
@@ -576,11 +773,9 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     }
 }
 
-- (void)watchVerificationProcess:(NSFileHandle*)streamHandle {
+- (void)watchVerificationProcess:(NSFileHandle *)streamHandle {
     @autoreleasepool {
-        
         verificationResult = [[NSString alloc] initWithData:[streamHandle readDataToEndOfFile] encoding:NSASCIIStringEncoding];
-        
     }
 }
 
@@ -650,7 +845,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
 }
 
 - (IBAction)browse:(id)sender {
-    NSOpenPanel* openDlg = [NSOpenPanel openPanel];
+    NSOpenPanel *openDlg = [NSOpenPanel openPanel];
     
     [openDlg setCanChooseFiles:TRUE];
     [openDlg setCanChooseDirectories:FALSE];
@@ -660,13 +855,13 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     
     if ([openDlg runModal] == NSOKButton)
     {
-        NSString* fileNameOpened = [[[openDlg URLs] objectAtIndex:0] path];
+        NSString *fileNameOpened = [[[openDlg URLs] objectAtIndex:0] path];
         [pathField setStringValue:fileNameOpened];
     }
 }
 
 - (IBAction)provisioningBrowse:(id)sender {
-    NSOpenPanel* openDlg = [NSOpenPanel openPanel];
+    NSOpenPanel *openDlg = [NSOpenPanel openPanel];
     
     [openDlg setCanChooseFiles:TRUE];
     [openDlg setCanChooseDirectories:FALSE];
@@ -676,13 +871,13 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     
     if ([openDlg runModal] == NSOKButton)
     {
-        NSString* fileNameOpened = [[[openDlg URLs] objectAtIndex:0] path];
+        NSString *fileNameOpened = [[[openDlg URLs] objectAtIndex:0] path];
         [provisioningPathField setStringValue:fileNameOpened];
     }
 }
 
 - (IBAction)entitlementBrowse:(id)sender {
-    NSOpenPanel* openDlg = [NSOpenPanel openPanel];
+    NSOpenPanel *openDlg = [NSOpenPanel openPanel];
     
     [openDlg setCanChooseFiles:TRUE];
     [openDlg setCanChooseDirectories:FALSE];
@@ -692,7 +887,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     
     if ([openDlg runModal] == NSOKButton)
     {
-        NSString* fileNameOpened = [[[openDlg URLs] objectAtIndex:0] path];
+        NSString *fileNameOpened = [[[openDlg URLs] objectAtIndex:0] path];
         [entitlementField setStringValue:fileNameOpened];
     }
 }
@@ -704,6 +899,24 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     }
     
     bundleIDField.enabled = changeBundleIDCheckbox.state == NSOnState;
+}
+
+- (IBAction)changeVersionNumberPressed:(id)sender {
+    
+    if (sender != changeVersionNumberCheckBox) {
+        return;
+    }
+    
+    versionumberField.enabled = changeVersionNumberCheckBox.state == NSOnState;
+}
+
+- (IBAction)changeBuildNumberPressed:(id)sender {
+
+    if (sender != changeBuildNumberCheckBox) {
+        return;
+    }
+
+    buildNumberField.enabled = changeBuildNumberCheckBox.state == NSOnState;
 }
 
 - (void)disableControls {
@@ -736,7 +949,7 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     [flurry setAlphaValue:0.5];
 }
 
--(NSInteger)numberOfItemsInComboBox:(NSComboBox *)aComboBox {
+- (NSInteger)numberOfItemsInComboBox:(NSComboBox *)aComboBox {
     NSInteger count = 0;
     if ([aComboBox isEqual:certComboBox]) {
         count = [certComboBoxItems count];
@@ -775,32 +988,37 @@ static NSString *kiTunesMetadataFileName            = @"iTunesMetadata";
     [NSThread detachNewThreadSelector:@selector(watchGetCerts:) toTarget:self withObject:handle];
 }
 
-- (void)watchGetCerts:(NSFileHandle*)streamHandle {
+- (void)watchGetCerts:(NSFileHandle *)streamHandle {
     @autoreleasepool {
-        
-        NSString *securityResult = [[NSString alloc] initWithData:[streamHandle readDataToEndOfFile] encoding:NSASCIIStringEncoding];
+        NSString *securityResult = [[NSString alloc] initWithData:[streamHandle readDataToEndOfFile] encoding:NSUTF8StringEncoding];
         // Verify the security result
         if (securityResult == nil || securityResult.length < 1) {
             // Nothing in the result, return
             return;
         }
-        NSArray *rawResult = [securityResult componentsSeparatedByString:@"\""];
-        NSMutableArray *tempGetCertsResult = [NSMutableArray arrayWithCapacity:20];
-        for (int i = 0; i <= [rawResult count] - 2; i+=2) {
-            
-            NSLog(@"i:%d", i+1);
-            if (rawResult.count - 1 < i + 1) {
+        NSArray *rawResult = [securityResult componentsSeparatedByString:@"\n"];
+        NSMutableDictionary *tempGetCertsResult = [NSMutableDictionary dictionaryWithCapacity:20];
+        NSMutableArray *tempGetCertsResultNames = [NSMutableArray arrayWithCapacity:20];
+        for (int i = 0; i < [rawResult count] - 2; i++) {
+            if (!rawResult || [[rawResult objectAtIndex:i] isEqualToString:@""]) {
+                continue;
+            }
+    
+            NSArray *row = [[[rawResult objectAtIndex:i] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] componentsSeparatedByString:@" "];
+            if (row.count  < 3) {
                 // Invalid array, don't add an object to that position
             } else {
                 // Valid object
-                [tempGetCertsResult addObject:[rawResult objectAtIndex:i+1]];
+                NSString *name = [[[rawResult objectAtIndex:i] componentsSeparatedByString:@"\""] objectAtIndex:1];
+                [tempGetCertsResult setObject:[row objectAtIndex:1] forKey:name];
+                [tempGetCertsResultNames addObject:name];
             }
         }
         
-        certComboBoxItems = [NSMutableArray arrayWithArray:tempGetCertsResult];
+        self.signinigCerts = tempGetCertsResult;
+        certComboBoxItems = [NSMutableArray arrayWithArray:tempGetCertsResultNames];
         
         [certComboBox reloadData];
-        
     }
 }
 
